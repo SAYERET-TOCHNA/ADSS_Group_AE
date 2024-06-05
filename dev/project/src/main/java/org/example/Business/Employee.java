@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 // enumset docs: https://docs.oracle.com/javase/8/docs/api/java/util/EnumSet.html
 import java.util.EnumSet;
-import java.util.List;
+
 
 import org.example.Business.Enums.EmploymentType;
 import org.example.Business.Enums.Role;
@@ -15,7 +15,7 @@ public class Employee {
     protected String id;
     protected int branchId;
     protected EmploymentType employmentType;
-    protected EnumSet roles;
+    protected EnumSet<Role> roles;
     protected int salary;
     protected String bankAccountId;
     protected LocalDate startDate;

@@ -3,8 +3,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 import org.example.Business.Employee;
 import org.example.Service.Branch;
@@ -13,9 +11,6 @@ import org.example.Business.Enums.Role;
 import org.example.Business.Enums.ShiftTime;
 import org.example.Utilities.SmartReader;
 
-
-//TODO:: safe reader )))):::::: with prompt and error message and loop until valid input 
-// replace all scanner with safe reader
 
 
 

@@ -6,7 +6,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.example.Business.Employee;
+
 import org.example.Business.Shift;
 import org.example.Business.Enums.ShiftTime;
 import org.example.Business.Enums.Role;
@@ -82,7 +82,7 @@ public class ShiftService {
         if(date.isBefore(LocalDate.now()))
             throw new IllegalArgumentException("cannot remove availability of date from the past");
 
-        if(!this.availableEmployees.containsKey(time))
+        if(!this.availableEmployees.containsKey(date))
             throw new IllegalArgumentException("failed to remove availability for shift " + date.toString() + "no date matching found.");
 
         if(!(this.availableEmployees.get(date) instanceof EnumMap))
