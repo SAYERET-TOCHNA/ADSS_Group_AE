@@ -193,16 +193,63 @@ public class Branch {
     }
 
 
-    /// get all available employees for a shift
-    public ArrayList<String> getAvailableEmployees(LocalDate date, ShiftTime time, String requestingUserId)
+    /// get all employee ids for a shift
+    public String getEmployeesForShiftStr(LocalDate date, ShiftTime time, String requestingUserId)
     {
         if(!isEmployeeLoggedIn(requestingUserId))
             throw new IllegalArgumentException("requesting user " + requestingUserId + " is not logged in.");
         if(!requestingUserId.equals(this.HRManagerId))
-            throw new IllegalArgumentException("user " + requestingUserId + " doesn't have permission to view that");
-            
-        return shiftManager.getAvailableEmployees(date, time); //might throw exception. which is ok.
+            throw new IllegalArgumentException("user " + requestingUserId + " doesn't have permission to view this information");
+
+        StringBuilder str = new StringBuilder();
+        EnumMap<Role , ArrayList<String>> employeesMap = shiftManager.getEmployeesForShift(date, time); //might throw exception. which is ok.
+        for(Role role : employeesMap.keySet()){ 
+            str.append(role.toString() + ": ");
+            for(String eId : employeesMap.get(role)){
+                str.append(eId + ", ");
+            }
+            str.append("\n");
+        }
+        return str.toString();
     }
+
+    /// get all required employees for a shift
+    public String getRequiredEmployeesForShiftStr(LocalDate date, ShiftTime time, String requestingUserId)
+    {
+
+        if(!isEmployeeLoggedIn(requestingUserId))
+            throw new IllegalArgumentException("requesting user " + requestingUserId + " is not logged in.");
+        if(!requestingUserId.equals(this.HRManagerId))
+            throw new IllegalArgumentException("user " + requestingUserId + " doesn't have permission to view this information");
+
+        StringBuilder str = new StringBuilder();
+        EnumMap<Role , Integer> requiredEmployeesMap = shiftManager.getRequiredEmployeesForShift(date, time); //might throw exception. which is ok.
+        for(Role role : requiredEmployeesMap.keySet()){ 
+            str.append(role.toString() + ": " + requiredEmployeesMap.get(role) + "\n");
+        }
+        return str.toString();
+    }
+    
+    /// get all available employees for a shift
+    public String getAvailableEmployeesStr(LocalDate date, ShiftTime time, String requestingUserId)
+    {
+
+        if(!isEmployeeLoggedIn(requestingUserId))
+            throw new IllegalArgumentException("requesting user " + requestingUserId + " is not logged in.");
+        if(!requestingUserId.equals(this.HRManagerId))
+            throw new IllegalArgumentException("user " + requestingUserId + " doesn't have permission to view this information");
+
+        StringBuilder str = new StringBuilder();
+        ArrayList<String> employeeList = shiftManager.getAvailableEmployeesForShift(date, time); //might throw exception. which is ok.
+        for(String eId : employeeList){
+            Employee employee = empManager.getEmployee(eId); //might throw exception.
+            str.append(eId + ", " + employee.getName() + ", available Roles: "+employee.getRoles().toString()+ "\n");
+        }
+        return str.toString();
+    }
+
+
+    
     
 
     

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import org.example.Business.Enums.Role;
 import org.example.Business.Enums.ShiftTime;
 
+
 public class Shift {
 
     //------------------- fields -------------------
@@ -96,6 +97,16 @@ public class Shift {
         else
             throw new IllegalArgumentException("Employee " + id + " is not assigned to shift" + date.toString() + " " + shiftTime.toString() + " as " + role.toString());
     }
+
+    public EnumMap<Role, ArrayList<String>> getEmployeeIds(){
+        return new EnumMap<Role, ArrayList<String>>(employees);
+    }
+
+    public EnumMap<Role, Integer> getRequiredEmployees(){
+        return new EnumMap<Role, Integer>(requiredEmployees);
+    }
+
+    
 
 
 }

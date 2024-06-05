@@ -1,8 +1,10 @@
 package org.example.Business;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 // enumset docs: https://docs.oracle.com/javase/8/docs/api/java/util/EnumSet.html
 import java.util.EnumSet;
+import java.util.List;
 
 import org.example.Business.Enums.EmploymentType;
 import org.example.Business.Enums.Role;
@@ -27,6 +29,7 @@ public class Employee {
         this.id = id;
         this.branchId = branchId;
         this.employmentType = employmentType;
+        this.roles = EnumSet.noneOf(Role.class);
         this.salary = salary;
         this.bankAccountId = bankAccountId;
     }
@@ -82,6 +85,10 @@ public class Employee {
         if(isLegalId(bankAccountId))
             this.bankAccountId = bankAccountId;
         else throw new IllegalArgumentException("Illegal bank account id");
+    }
+
+    public ArrayList<Role> getRoles() {
+        return new ArrayList<Role>(roles);
     }
 
     //------------------------ Methods -------------------------

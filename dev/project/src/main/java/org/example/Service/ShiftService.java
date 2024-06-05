@@ -102,6 +102,11 @@ public class ShiftService {
     public void addEmployeeToShift(String eId , LocalDate date, ShiftTime time, Role role){
         if(!this.shifts.containsKey(date) || !this.shifts.get(date).containsKey(time))
             throw new IllegalArgumentException("Shift does not exist");
+        if(!this.availableEmployees.containsKey(date) || !this.availableEmployees.get(date).containsKey(time))
+            throw new IllegalArgumentException("Employee did not submit availability for this shift");
+        if(!this.availableEmployees.get(date).get(time).contains(eId))
+            throw new IllegalArgumentException("Employee did not submit availability for this shift");
+            
         this.shifts.get(date).get(time).addEmployee(eId, role);
     }
 
@@ -120,10 +125,22 @@ public class ShiftService {
 
 
 
-    public ArrayList<String> getAvailableEmployees(LocalDate date, ShiftTime time){
+    public EnumMap<Role , ArrayList<String>> getEmployeesForShift(LocalDate date, ShiftTime time){
+        if(!this.shifts.containsKey(date) || !this.shifts.get(date).containsKey(time))
+            throw new IllegalArgumentException("Shift does not exist");
+        return this.shifts.get(date).get(time).getEmployeeIds();
+    }
+
+    public EnumMap<Role , Integer> getRequiredEmployeesForShift(LocalDate date, ShiftTime time){
+        if(!this.shifts.containsKey(date) || !this.shifts.get(date).containsKey(time))
+            throw new IllegalArgumentException("Shift does not exist");
+        return this.shifts.get(date).get(time).getRequiredEmployees();
+    }
+
+    public ArrayList<String> getAvailableEmployeesForShift(LocalDate date, ShiftTime time){
         if(!this.availableEmployees.containsKey(date) || !this.availableEmployees.get(date).containsKey(time))
             throw new IllegalArgumentException("Shift does not exist");
-        return this.availableEmployees.get(date).get(time);
+        return new ArrayList<String> (this.availableEmployees.get(date).get(time));
     }
 
 
