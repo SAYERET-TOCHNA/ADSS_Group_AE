@@ -49,7 +49,7 @@ public class ShiftService {
 
     public void removeShift(LocalDate date , ShiftTime time){ 
         if(!this.shifts.containsKey(date) || !this.shifts.get(date).containsKey(time)){
-            throw new IllegalArgumentException("Shift already exists");
+            throw new IllegalArgumentException("Shift does not exist");
         }
         this.shifts.get(date).remove(time);
     }
@@ -143,5 +143,8 @@ public class ShiftService {
         return new ArrayList<String> (this.availableEmployees.get(date).get(time));
     }
 
+    public boolean doesShiftExist(LocalDate date, ShiftTime time){
+        return this.shifts.containsKey(date) && this.shifts.get(date).containsKey(time);
+    }
 
 }
