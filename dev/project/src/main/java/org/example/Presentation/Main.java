@@ -1,4 +1,4 @@
-package org.example;
+package org.example.Presentation;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -27,7 +27,7 @@ public class Main {
 
     public static void main(String[] args) {
         
-        /// create 9 managers & branches
+        /// create 9 initial managers & branches
         for(int i = 0; i < 9; i++){
             Employee employee = Employee.createEmployee("name"+i, ""+i, i, EmploymentType.FULL_TIME, 25000, ""+i);
             employee.addRole(Role.HR_MANAGER);
