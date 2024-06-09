@@ -62,7 +62,17 @@ public class EmployeeService {
     }
 
     public void assignRoleToEmployee(String employeeId, Role role) {
+        if(!this.employees.containsKey(employeeId)){
+            throw new IllegalArgumentException("Employee with id " + employeeId + " does not exist");
+        }
         this.employees.get(employeeId).addRole(role);
+    }
+
+    public void setPassword(String employeeId, String newPassword) {
+        if(!this.employees.containsKey(employeeId)){
+            throw new IllegalArgumentException("Employee with id " + employeeId + " does not exist");
+        }
+        this.employees.get(employeeId).setPassword(newPassword);
     }
 
 

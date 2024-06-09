@@ -83,8 +83,10 @@ public class Main {
             String userName = reader.readString();
             System.out.print("Enter id: ");
             String userId = reader.readString();
+            System.out.println("Enter password: ");
+            String password = reader.readString();
 
-            Employee e = branches.get(loggedInBranchId).logIn(userName, userId);
+            Employee e = branches.get(loggedInBranchId).logIn(userName, userId, password);
             loggedInUserId = e.getId();
             if(e.isSuitableForRole(Role.HR_MANAGER))
             {
@@ -106,25 +108,26 @@ public class Main {
         System.out.println("Choose an action:");
         System.out.println("1. submit availability for shift");
         System.out.println("2. remove availability for shift");
+        System.out.println("3. change password");
         if(isAdmin){
-            System.out.println("3. add a Shift to schduele");
-            System.out.println("4. remove a Shift from schduele");
-            System.out.println("5. add Employee to Shift");
-            System.out.println("6. remove Employee from Shift");
-            System.out.println("7. print employees in shift");
-            System.out.println("8. print required employees for shift");
-            System.out.println("9. print available employees for shift");
-            System.out.println("10. add/recruit new Employee to Branch");
-            System.out.println("11. remove/fire Employee from Branch");
-            System.out.println("12. assign new Role to Employee");
-            System.out.println("13. set last date for submitting shifts");
-            System.out.println("14. log out");
-            System.out.println("15. Exit system");
+            System.out.println("4. add a Shift to schduele");
+            System.out.println("5. remove a Shift from schduele");
+            System.out.println("6. add Employee to Shift");
+            System.out.println("7. remove Employee from Shift");
+            System.out.println("8. print employees in shift");
+            System.out.println("9. print required employees for shift");
+            System.out.println("10. print available employees for shift");
+            System.out.println("11. add/recruit new Employee to Branch");
+            System.out.println("12. remove/fire Employee from Branch");
+            System.out.println("13. assign new Role to Employee");
+            System.out.println("14. set last date for submitting shifts");
+            System.out.println("15. log out");
+            System.out.println("16. Exit system");
     
         }
         else{
-            System.out.println("3. Log out");
-            System.out.println("4. Exit system");
+            System.out.println("4. Log out");
+            System.out.println("5. Exit system");
         }
     }
 
@@ -136,9 +139,9 @@ public class Main {
         while(actionId==-1){
             System.out.print("your choice: ");
             actionId = reader.readInt();
-            if(isAdmin && actionId >= 1 && actionId <= 15)
+            if(isAdmin && actionId >= 1 && actionId <= 16)
                 break;
-            else if(!isAdmin && actionId >= 1 && actionId <= 4)
+            else if(!isAdmin && actionId >= 1 && actionId <= 5)
                 break;
             else{
                 System.out.println("Invalid action choice.");
@@ -163,42 +166,45 @@ public class Main {
                     removeAvailabilityForShift();
                     break;
                 case 3:
-                    addShiftToSchduele();
+                    changePassword();
                     break;
                 case 4:
-                    removeShiftFromSchduele();
+                    addShiftToSchduele();
                     break;
                 case 5:
-                    addEmployeeToShift();
+                    removeShiftFromSchduele();
                     break;
                 case 6:
-                    removeEmployeeFromShift();
+                    addEmployeeToShift();
                     break;
                 case 7:
-                    printEmployeesInShift();
+                    removeEmployeeFromShift();
                     break;
                 case 8:
+                    printEmployeesInShift();
+                    break;
+                case 9:
                     printRequiredEmployeesForShift();
                     break;
-                case 9: 
+                case 10: 
                     printAvailableEmployeesForShift();
                     break;
-                case 10:
+                case 11:
                     addNewEmployeeToBranch();
                     break;
-                case 11:
+                case 12:
                     removeEmployeeFromBranch();
                     break;
-                case 12:  
+                case 13:  
                     assignNewRoleToEmployee();
                     break;  
-                case 13:
+                case 14:
                     setLastDateForSubmitting();
                     break;
-                case 14:
+                case 15:
                     logOut();
                     break;
-                case 15:
+                case 16:
                     logOut();
                     systemOn=false;
                     break;
@@ -217,9 +223,12 @@ public class Main {
                     removeAvailabilityForShift();
                     break;
                 case 3:
-                    logOut();
+                    changePassword();
                     break;
                 case 4:
+                    logOut();
+                    break;
+                case 5:
                     logOut();
                     systemOn=false;
                     System.out.println("Exiting System, Goodbye!");
@@ -291,6 +300,25 @@ public class Main {
         catch(Exception e)
         {
             System.out.println("Failed to remove availability for shift. "+e.getMessage());
+        }
+    }
+
+    public static void changePassword()
+    {
+        try
+        {
+            SmartReader reader = new SmartReader();
+            System.out.println("Enter your current password: ");
+            String currentPassword = reader.readString();
+            System.out.println("Enter your new password: ");
+            String newPassword = reader.readString();
+            branches.get(loggedInBranchId).setEmployeePassword(loggedInUserId, currentPassword, newPassword);
+            System.out.println("Password changed successfully!");
+            System.out.println("");
+        }
+        catch(Exception e)
+        {
+            System.out.println("Failed to change password. "+e.getMessage());
         }
     }
 

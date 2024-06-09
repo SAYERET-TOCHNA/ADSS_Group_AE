@@ -57,11 +57,21 @@ public class Branch {
         return empManager.removeEmployee(eId);
     }
 
+    public void setEmployeePassword(String eId, String oldPassword , String newPassword){
+        if(!loggedInUserIds.contains(eId))
+            throw new IllegalArgumentException("employee " + eId + " is not logged in");
+        if(!empManager.getEmployee(eId).checkPassword(oldPassword))
+            throw new IllegalArgumentException("old password is incorrect");
+        empManager.setPassword(eId , newPassword);
+    }
+
     /// log in an employee to the system
-    public Employee logIn(String name , String eId){
+    public Employee logIn(String name , String eId, String password){
         Employee employee = empManager.getEmployee(eId); //might throw exception. which is ok.
         if (!employee.getName().equals(name))
             throw new IllegalArgumentException("credentials does not match a user in the system.");
+        if (!employee.checkPassword(password))
+            throw new IllegalArgumentException("incorrect password.");
         if (isEmployeeLoggedIn(eId))
             throw new IllegalArgumentException("employee " + eId + " is already logged in");
         this.loggedInUserIds.add(eId);   

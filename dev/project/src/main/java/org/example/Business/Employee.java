@@ -13,6 +13,7 @@ public class Employee {
 
     protected String name;
     protected String id;
+    protected String password;
     protected int branchId;
     protected EmploymentType employmentType;
     protected EnumSet<Role> roles;
@@ -27,6 +28,7 @@ public class Employee {
     private Employee(String name, String id, int branchId ,EmploymentType employmentType, int salary, String bankAccountId) {
         this.name = name;
         this.id = id;
+        this.password = id;
         this.branchId = branchId;
         this.employmentType = employmentType;
         this.roles = EnumSet.noneOf(Role.class);
@@ -89,6 +91,14 @@ public class Employee {
 
     public ArrayList<Role> getRoles() {
         return new ArrayList<Role>(roles);
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean checkPassword(String password){
+        return this.password.equals(password);
     }
 
     //------------------------ Methods -------------------------
