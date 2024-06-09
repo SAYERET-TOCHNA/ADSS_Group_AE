@@ -1,0 +1,75 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam class {
+    BorderColor Black
+    ArrowColor Black
+    FontName Arial
+}
+
+package "Domain Layer" {
+    class Inventory {
+        -Map<Integer,Item> allItems
+        -Map<String,List<Integer>> storeProducts
+        -Map<String,List<Integer>> warehouseProducts
+        -Map<String, Product> products
+        -Map<String,String> productsStoreLocation
+        -Map<String,String> productsWarehouseLocation
+        -Map<String, List<Integer>> damagedItems
+        -Map<String, List<Integer>> expiredItems
+        -List<Discount> discountsToClients
+        -List<Discount> discountsFromSuppliers
+    }
+
+    class Product {
+        -String name
+        -double buyingCost
+        -double sellingCost
+        -Category category
+        -String manufacturer
+        -int minimumAmountAllowed
+    }
+
+    class Category {
+        -String firstCat
+        -String secondCat
+        -String thirdCat
+    }
+
+    class Item {
+        -String productName
+        -int itemID
+        -LocalDate expiredDate
+    }
+
+    class Discount {
+        -LocalDate startDate
+        -LocalDate endDate
+        -Category[] categories
+        -double discountParameter
+        -List<String> discountedProducts
+    }
+
+    class BuisnessManager {
+        -Inventory inventory
+    }
+
+    class Utils {
+        {static}
+    }
+}
+
+package "Presentation Layer" {
+    class CommandLineUI {
+        -Scanner scanner
+        -BuisnessManager manager
+    }
+}
+
+Inventory "1" *-- "n" Product
+Product "1" *-- "1" Category
+Inventory "1" *-- "n" Item
+Inventory "1" *-- "n" Discount
+BuisnessManager "1" *-- "1" Inventory
+CommandLineUI "1" *-- "1" BuisnessManager
+@enduml
