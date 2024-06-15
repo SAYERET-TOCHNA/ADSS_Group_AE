@@ -72,6 +72,9 @@ public class EmployeeService {
         if(!this.employees.containsKey(employeeId)){
             throw new IllegalArgumentException("Employee with id " + employeeId + " does not exist");
         }
+        if(employees.get(employeeId).checkPassword(newPassword)){
+            throw new IllegalArgumentException("Password must be different from the current password");
+        }
         this.employees.get(employeeId).setPassword(newPassword);
     }
 
