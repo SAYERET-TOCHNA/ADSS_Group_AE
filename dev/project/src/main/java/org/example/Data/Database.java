@@ -374,6 +374,16 @@ public class Database {
     ///TODO load branch data
 
 
+    //TODO static method in branch class that pulls data
+
+    
+    // ArrayList<branchId>
+    public static ArrayList<int> loadData(){
+
+    }
+
+    public static Branch getBranchData(int branchId){
+
         
     }
 
