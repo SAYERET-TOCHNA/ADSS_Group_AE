@@ -1,11 +1,15 @@
 package org.example.Service;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.example.Business.Employee;
 
 import org.example.Business.Enums.EmploymentType;
 import org.example.Business.Enums.Role;
+import org.example.Business.Enums.ShiftTime;
+import org.example.Utilities.Trio;
 
 // the EmpManager class manages the employees in the company
 public class EmployeeService {
@@ -72,10 +76,63 @@ public class EmployeeService {
         if(!this.employees.containsKey(employeeId)){
             throw new IllegalArgumentException("Employee with id " + employeeId + " does not exist");
         }
-        if(employees.get(employeeId).checkPassword(newPassword)){
-            throw new IllegalArgumentException("Password must be different from the current password");
-        }
         this.employees.get(employeeId).setPassword(newPassword);
+    }
+
+    public boolean checkPassword(String employeeId, String password) {
+        if(!this.employees.containsKey(employeeId)){
+            throw new IllegalArgumentException("Employee with id " + employeeId + " does not exist");
+        }
+        return this.employees.get(employeeId).checkPassword(password);
+    }
+
+    public void setSalary(String employeeId, int newSalary) {
+        if(!this.employees.containsKey(employeeId)){
+            throw new IllegalArgumentException("Employee with id " + employeeId + " does not exist");
+        }
+        this.employees.get(employeeId).setSalary(newSalary);
+    }
+
+    public void setBankAccountId(String employeeId, String newBankAccountId) {
+        if(!this.employees.containsKey(employeeId)){
+            throw new IllegalArgumentException("Employee with id " + employeeId + " does not exist");
+        }
+        this.employees.get(employeeId).setBankAccountId(newBankAccountId);
+    }
+
+    public boolean isSuitableForRole(String employeeId, Role role) {
+        if(!this.employees.containsKey(employeeId)){
+            throw new IllegalArgumentException("Employee with id " + employeeId + " does not exist");
+        }
+        return this.employees.get(employeeId).isSuitableForRole(role);
+    }
+
+    public void addShift(String employeeId, LocalDate date, ShiftTime time, Role role) {
+        if(!this.employees.containsKey(employeeId)){
+            throw new IllegalArgumentException("Employee with id " + employeeId + " does not exist");
+        }
+        this.employees.get(employeeId).addShift(date, time, role);
+    }
+
+    public void removeShift(String employeeId, LocalDate date, ShiftTime time) {
+        if(!this.employees.containsKey(employeeId)){
+            throw new IllegalArgumentException("Employee with id " + employeeId + " does not exist");
+        }
+        this.employees.get(employeeId).removeShift(date, time);
+    }
+
+    public boolean isInShift(String employeeId, LocalDate date, ShiftTime time) {
+        if(!this.employees.containsKey(employeeId)){
+            throw new IllegalArgumentException("Employee with id " + employeeId + " does not exist");
+        }
+        return this.employees.get(employeeId).isInShift(date, time);
+    }
+
+    public ArrayList<Trio<LocalDate,ShiftTime,Role>> getShifts(String employeeId) {
+        if(!this.employees.containsKey(employeeId)){
+            throw new IllegalArgumentException("Employee with id " + employeeId + " does not exist");
+        }
+        return this.employees.get(employeeId).getShifts();
     }
 
 

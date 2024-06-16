@@ -8,6 +8,7 @@ import org.example.Business.Employee;
 import org.example.Business.Enums.ShiftTime;
 import org.example.Business.Enums.Role;
 import org.example.Business.Enums.EmploymentType;
+import org.example.Utilities.Trio;
 
 public class Branch {
 
@@ -156,13 +157,16 @@ public class Branch {
             throw new IllegalArgumentException("requesting user " + requestingUserId + " is not logged in.");
         if(!requestingUserId.equals(this.HRManagerId))
             throw new IllegalArgumentException("user " + requestingUserId + " doesn't have permission to add Employee to Shift");
-        
-        Employee employee = empManager.getEmployee(EmployeeId); //might throw exception. which is ok.
 
-        if(!employee.isSuitableForRole(role))
+        if(!empManager.isSuitableForRole(EmployeeId , role))
             throw new IllegalArgumentException("employee " + EmployeeId + " is not suitable for role " + role.toString() + " in shift " + date.toString() + " " + time.toString());
 
-        shiftManager.addEmployeeToShift(employee.getId(), date, time, role); //might throw exception. which is ok.
+        try {
+            shiftManager.addEmployeeToShift(EmployeeId, date, time, role); //might throw exception. which is ok.
+            empManager.addShift(EmployeeId , date, time, role);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     /// remove an employee from a shift
@@ -175,14 +179,18 @@ public class Branch {
         if(!requestingUserId.equals(this.HRManagerId))
             throw new IllegalArgumentException("user " + requestingUserId + " doesn't have permission to remove Employee from Shift");
         
-        shiftManager.removeEmployeeFromShift(EmployeeId, date, time, role); //might throw exception. which is ok.
+        try {
+            shiftManager.removeEmployeeFromShift(EmployeeId, date, time, role); //might throw exception. which is ok.
+            empManager.removeShift(EmployeeId , date, time);
+        } catch (Exception e) {
+            throw e;
+        }
+        
     }
 
     /// assign new Role to employee
     public void assignRoleToEmployee(String EmployeeId, Role role, String requestingUserId)
     {
-        if(!empManager.hasEmlpoyee(EmployeeId))
-            throw new IllegalArgumentException("failed to submit availability, employee " + EmployeeId + " is not in the system.");
         if(!isEmployeeLoggedIn(requestingUserId))
             throw new IllegalArgumentException("requesting user " + requestingUserId + " is not logged in.");
         if(!requestingUserId.equals(this.HRManagerId))
@@ -256,6 +264,14 @@ public class Branch {
             str.append(eId + ", " + employee.getName() + ", available Roles: "+employee.getRoles().toString()+ "\n");
         }
         return str.toString();
+    }
+
+    /// get all Shifts for an employee from a certain date
+    public ArrayList<Trio<LocalDate,ShiftTime,Role>> getShiftsForEmployee(String eId)
+    {
+        if(!isEmployeeLoggedIn(eId))
+            throw new IllegalArgumentException("user " + eId + " is not logged in.");
+        return empManager.getShifts(eId);
     }
 
 

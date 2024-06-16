@@ -10,6 +10,7 @@ import org.example.Business.Enums.EmploymentType;
 import org.example.Business.Enums.Role;
 import org.example.Business.Enums.ShiftTime;
 import org.example.Utilities.SmartReader;
+import org.example.Utilities.Trio;
 
 
 
@@ -108,26 +109,27 @@ public class Main {
         System.out.println("Choose an action:");
         System.out.println("1. submit availability for shift");
         System.out.println("2. remove availability for shift");
-        System.out.println("3. change password");
+        System.out.println("3. view my shifts");
+        System.out.println("4. change password");
         if(isAdmin){
-            System.out.println("4. add a Shift to schduele");
-            System.out.println("5. remove a Shift from schduele");
-            System.out.println("6. add Employee to Shift");
-            System.out.println("7. remove Employee from Shift");
-            System.out.println("8. print employees in shift");
-            System.out.println("9. print required employees for shift");
-            System.out.println("10. print available employees for shift");
-            System.out.println("11. add/recruit new Employee to Branch");
-            System.out.println("12. remove/fire Employee from Branch");
-            System.out.println("13. assign new Role to Employee");
-            System.out.println("14. set last date for submitting shifts");
-            System.out.println("15. log out");
-            System.out.println("16. Exit system");
+            System.out.println("5. add a Shift to schduele");
+            System.out.println("6. remove a Shift from schduele");
+            System.out.println("7. add Employee to Shift");
+            System.out.println("8. remove Employee from Shift");
+            System.out.println("9. print employees in shift");
+            System.out.println("10. print required employees for shift");
+            System.out.println("11. print available employees for shift");
+            System.out.println("12. add/recruit new Employee to Branch");
+            System.out.println("13. remove/fire Employee from Branch");
+            System.out.println("14. assign new Role to Employee");
+            System.out.println("15. set last date for submitting shifts");
+            System.out.println("16. log out");
+            System.out.println("17. Exit system");
     
         }
         else{
-            System.out.println("4. Log out");
-            System.out.println("5. Exit system");
+            System.out.println("5. Log out");
+            System.out.println("6. Exit system");
         }
     }
 
@@ -139,9 +141,9 @@ public class Main {
         while(actionId==-1){
             System.out.print("your choice: ");
             actionId = reader.readInt();
-            if(isAdmin && actionId >= 1 && actionId <= 16)
+            if(isAdmin && actionId >= 1 && actionId <= 17)
                 break;
-            else if(!isAdmin && actionId >= 1 && actionId <= 5)
+            else if(!isAdmin && actionId >= 1 && actionId <= 6)
                 break;
             else{
                 System.out.println("Invalid action choice.");
@@ -166,47 +168,51 @@ public class Main {
                     removeAvailabilityForShift();
                     break;
                 case 3:
-                    changePassword();
+                    viewMyShifts();
                     break;
                 case 4:
-                    addShiftToSchduele();
+                    changePassword();
                     break;
                 case 5:
-                    removeShiftFromSchduele();
+                    addShiftToSchduele();
                     break;
                 case 6:
-                    addEmployeeToShift();
+                    removeShiftFromSchduele();
                     break;
                 case 7:
-                    removeEmployeeFromShift();
+                    addEmployeeToShift();
                     break;
                 case 8:
-                    printEmployeesInShift();
+                    removeEmployeeFromShift();
                     break;
                 case 9:
-                    printRequiredEmployeesForShift();
+                    printEmployeesInShift();
                     break;
                 case 10: 
-                    printAvailableEmployeesForShift();
+                    printRequiredEmployeesForShift();
                     break;
                 case 11:
-                    addNewEmployeeToBranch();
+                    printAvailableEmployeesForShift();
                     break;
                 case 12:
-                    removeEmployeeFromBranch();
+                    addNewEmployeeToBranch();
                     break;
                 case 13:  
-                    assignNewRoleToEmployee();
+                    removeEmployeeFromBranch();
                     break;  
                 case 14:
-                    setLastDateForSubmitting();
+                    assignNewRoleToEmployee();
                     break;
                 case 15:
-                    logOut();
+                    setLastDateForSubmitting();
                     break;
                 case 16:
                     logOut();
+                    break;
+                case 17:
+                    logOut();
                     systemOn=false;
+                    System.out.println("Exiting System, Goodbye!");
                     break;
                 default:
                     System.out.println("something weird happened... Act() returned the value "+actionId+" and isAdmin is true");
@@ -223,12 +229,15 @@ public class Main {
                     removeAvailabilityForShift();
                     break;
                 case 3:
-                    changePassword();
+                    viewMyShifts();
                     break;
                 case 4:
-                    logOut();
+                    changePassword();
                     break;
                 case 5:
+                    logOut();
+                    break;
+                case 6:
                     logOut();
                     systemOn=false;
                     System.out.println("Exiting System, Goodbye!");
@@ -626,6 +635,21 @@ public class Main {
         System.out.println("Logged out successfully!");
     }
 
+    private static void viewMyShifts() {
+        try {
+            ArrayList<Trio<LocalDate,ShiftTime,Role>> shifts = branches.get(loggedInBranchId).getShiftsForEmployee(loggedInUserId);
+            System.out.println("");
+            System.out.println("Your shifts:");
+            for(Trio tri : shifts){
+                System.out.println(tri.getFirst() + " " + tri.getSecond() + " " + tri.getThird());
+            }
+            System.out.println("");
+        } catch (Exception e) {
+            System.out.println("Failed to view shifts. "+e.getMessage());
+            System.out.println("");
+        }
+    }
+
     // -------------- Utility methods --------------
 
     public static Role chooseRole()
@@ -669,6 +693,8 @@ public class Main {
         }
         return employmentType;
     }
+
+    
 
 
 

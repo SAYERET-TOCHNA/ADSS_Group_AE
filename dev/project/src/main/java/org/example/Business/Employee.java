@@ -2,12 +2,12 @@ package org.example.Business;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-// enumset docs: https://docs.oracle.com/javase/8/docs/api/java/util/EnumSet.html
 import java.util.EnumSet;
-
 
 import org.example.Business.Enums.EmploymentType;
 import org.example.Business.Enums.Role;
+import org.example.Business.Enums.ShiftTime;
+import org.example.Utilities.Trio;
 
 public class Employee {
 
@@ -20,7 +20,7 @@ public class Employee {
     protected int salary;
     protected String bankAccountId;
     protected LocalDate startDate;
-
+    protected ArrayList<Trio<LocalDate , ShiftTime, Role>> shifts; 
 
     
     //------------------- construction (factory) -------------------
@@ -34,6 +34,7 @@ public class Employee {
         this.roles = EnumSet.noneOf(Role.class);
         this.salary = salary;
         this.bankAccountId = bankAccountId;
+        this.shifts = new ArrayList<Trio<LocalDate , ShiftTime, Role>>();
     }
     private Employee(){}
 
@@ -99,6 +100,34 @@ public class Employee {
 
     public boolean checkPassword(String password){
         return this.password.equals(password);
+    }
+
+    public void addShift(LocalDate date, ShiftTime time, Role role){
+        if(isInShift(date, time))
+            throw new IllegalArgumentException("Employee is already in shift at this time");
+        this.shifts.add(new Trio<LocalDate, ShiftTime, Role>(date, time, role));
+        this.shifts.sort((a,b) -> a.getFirst().compareTo(b.getFirst()));
+    }
+
+    public boolean isInShift(LocalDate date, ShiftTime time){
+        for(Trio<LocalDate, ShiftTime, Role> shift : this.shifts){
+            if(shift.getFirst().equals(date) && shift.getSecond().equals(time)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void removeShift(LocalDate date, ShiftTime time){
+        for(Trio<LocalDate, ShiftTime, Role> shift : this.shifts){
+            if(shift.getFirst().equals(date) && shift.getSecond().equals(time)){
+                this.shifts.remove(shift);
+            }
+        }
+    }
+
+    public ArrayList<Trio<LocalDate,ShiftTime,Role>> getShifts(){
+        return new ArrayList<Trio<LocalDate,ShiftTime,Role>>(this.shifts);
     }
 
     //------------------------ Methods -------------------------
