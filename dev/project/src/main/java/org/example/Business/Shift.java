@@ -72,9 +72,10 @@ public class Shift {
         if(requiredEmployees.get(role) == 0 )
             throw new IllegalArgumentException("shift" + date.toString() + " " + shiftTime.toString() + " does not require anymore employees of role: " + role.toString());
         
-        for(String eId : employees.get(role))
-            if(eId.equals(id))
-                throw new IllegalArgumentException("Employee " + id + " is already assigned to shift" + date.toString() + " " + shiftTime.toString() + " as " + role.toString());
+        for(Role r : employees.keySet())
+            for(String eId : employees.get(r))
+                if(eId.equals(id))
+                    throw new IllegalArgumentException("Employee " + id + " is already assigned to shift" + date.toString() + " " + shiftTime.toString() + " as " + r.toString());
 
         employees.get(role).add(id);
         requiredEmployees.put(role, requiredEmployees.get(role) - 1);
