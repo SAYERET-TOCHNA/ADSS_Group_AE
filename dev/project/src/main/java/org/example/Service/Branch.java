@@ -12,7 +12,7 @@ import org.example.Utilities.Trio;
 
 public class Branch {
 
-    private static int NextBranchId = 0;
+    private static int NextBranchId = 0; //TODO: load from file
 
     private final int branchId;
 

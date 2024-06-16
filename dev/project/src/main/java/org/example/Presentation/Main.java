@@ -14,7 +14,6 @@ import org.example.Utilities.Trio;
 
 
 
-
 public class Main {
 
     private static ArrayList<Employee> employees = new ArrayList<Employee>();
@@ -109,22 +108,22 @@ public class Main {
         System.out.println("Choose an action:");
         System.out.println("1. submit availability for shift");
         System.out.println("2. remove availability for shift");
-        System.out.println("3. view my shifts");
+        System.out.println("3. view my shifts"); //nodb
         System.out.println("4. change password");
         if(isAdmin){
             System.out.println("5. add a Shift to schduele");
             System.out.println("6. remove a Shift from schduele");
             System.out.println("7. add Employee to Shift");
             System.out.println("8. remove Employee from Shift");
-            System.out.println("9. print employees in shift");
-            System.out.println("10. print required employees for shift");
-            System.out.println("11. print available employees for shift");
+            System.out.println("9. print employees in shift"); //nodb
+            System.out.println("10. print required employees for shift"); //nodb
+            System.out.println("11. print available employees for shift"); //nodb
             System.out.println("12. add/recruit new Employee to Branch");
             System.out.println("13. remove/fire Employee from Branch");
             System.out.println("14. assign new Role to Employee");
-            System.out.println("15. set last date for submitting shifts");
-            System.out.println("16. log out");
-            System.out.println("17. Exit system");
+            System.out.println("15. set last date for submitting shifts"); //TODO: add to db
+            System.out.println("16. log out"); //nodb
+            System.out.println("17. Exit system"); //nodb
     
         }
         else{
@@ -448,7 +447,7 @@ public class Main {
             else 
                 throw new IllegalArgumentException("Failed to remove employee from shift, Invalid time input.");
             // select employee
-            System.out.println("Enter the id of the employee you want to add to the shift: ");
+            System.out.println("Enter the id of the employee you want to remove from the shift: ");
             String employeeId = reader.readString();
             //select role
             Role role = chooseRole();
