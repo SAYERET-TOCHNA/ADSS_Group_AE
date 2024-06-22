@@ -1,24 +1,22 @@
-package org.example.Service;
+package org.example.Business;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.example.Business.Employee;
-
 import org.example.Business.Enums.EmploymentType;
 import org.example.Business.Enums.Role;
 import org.example.Business.Enums.ShiftTime;
 import org.example.Utilities.Trio;
-
+//TODO: change to EmployeeController - move to Business
 // the EmpManager class manages the employees in the company
-public class EmployeeService {
+public class EmployeeController {
 
     private HashMap<String, Employee> employees;
 
     //------------------- construction -------------------
 
-    public EmployeeService() {
+    public EmployeeController() {
         employees = new HashMap<String, Employee>();
     }
 

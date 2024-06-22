@@ -1,23 +1,23 @@
-package org.example.Service;
+package org.example.Business;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumMap;
 
-import org.example.Business.Employee;
 import org.example.Business.Enums.ShiftTime;
 import org.example.Business.Enums.Role;
 import org.example.Business.Enums.EmploymentType;
 import org.example.Utilities.Trio;
 
+// TODO: move to Business
 public class Branch {
 
     private static int NextBranchId = 0; //TODO: load from file
 
     private final int branchId;
 
-    private ShiftService shiftManager;
-    private EmployeeService empManager;
+    private ShiftController shiftManager;
+    private EmployeeController empManager;
 
     private String HRManagerId;
     private ArrayList<String> loggedInUserIds;
@@ -26,8 +26,8 @@ public class Branch {
 
     public Branch(Employee HRManager){
         branchId = NextBranchId;
-        shiftManager = new ShiftService();
-        empManager = new EmployeeService();
+        shiftManager = new ShiftController();
+        empManager = new EmployeeController();
         empManager.addEmployee(HRManager);
         HRManagerId = HRManager.getId();
         loggedInUserIds = new ArrayList<String>();

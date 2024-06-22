@@ -1,93 +1,57 @@
-package org.example.Data;
+package org.example.DataAccess;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.chrono.ThaiBuddhistChronology;
+import java.util.ArrayList;
 import java.util.EnumMap;
 
 import org.example.Business.Enums.Role;
 import org.example.Business.Enums.ShiftTime;
 
-public class Database {
+/// Singleton class that handles all database operations
+/// Concurrency safe by Lock Synchronization
+public class DBObj {
 
 
     private static final String DB_NAME = "superli.db";
 
-    // ---------------------------- Table Creation Queries ----------------------------
+    private static DBObj instance;
 
-    private static final String createEmployeeTableQuery = "CREATE TABLE IF NOT EXISTS EMPLOYEES (\n"
-            + "	id text PRIMARY KEY,\n"
-            + "	name text NOT NULL,\n"
-            + "	password text NOT NULL,\n"
-            + "	employment_type integer NOT NULL,\n"
-            + "	salary integer NOT NULL,\n"
-            + "	bank_account_id text NOT NULL\n"
-            + " branch_id integer NOT NULL,\n"
-            + " FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE\n"
-            + ");";
-    
-    private static final String createEmployeeToRoleTableQuery = "CREATE TABLE IF NOT EXISTS EMPLOYEE_TO_ROLE (\n"
-            + "	employee_id text NOT NULL,\n"
-            + "	role integer NOT NULL,\n"
-            + "	FOREIGN KEY(employee_id) REFERENCES EMPLOYEES(id) ON DELETE CASCADE\n"
-            + " PRIMARY KEY (employee_id, role)\n"
-            + ");";
-    
-    private static final String createShiftsTableQuery = "CREATE TABLE IF NOT EXISTS SHIFTS (\n"
-            + " shift_date text NOT NULL,\n"
-            + " shift_time integer NOT NULL,\n"
-            + " branch_id integer NOT NULL,\n"
-            + " FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE,\n"
-            + " primary key (shift_date, shift_time, branch_id)\n"
-            + ");";
+    private Object employeeTableLock;
+    private Object employeeToRoleTableLock;
+    private Object shiftsTableLock;
+    private Object shiftAvailabilityTableLock;
+    private Object shiftToEmployeeTableLock;
+    private Object shiftRoleToRequiredTableLock;
+    private Object branchesTableLock;
 
-    private static final String createShiftAvailabilityTableQuery = "CREATE TABLE IF NOT EXISTS SHIFT_AVAILABILITY (\n"
-            + "	employee_id text NOT NULL,\n"
-            + "	shift_date text NOT NULL,\n"
-            + "	shift_time integer NOT NULL,\n"
-            + " branch_id integer NOT NULL,\n"
-            + " FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE,\n"
-            + "	FOREIGN KEY(employee_id) REFERENCES EMPLOYEES(id) ON DELETE CASCADE,\n"
-            + "	FOREIGN KEY(shift_date, shift_time, branch_id) REFERENCES SHIFTS(shift_date, shift_time, branch_id) ON DELETE CASCADE,\n"
-            + " PRIMARY KEY (employee_id, shift_date, shift_time)\n"
-            + ");";
-    
-    private static final String createShiftToEmployeeTableQuery = "CREATE TABLE IF NOT EXISTS SHIFT_TO_EMPLOYEE (\n"
-            + "	employee_id text NOT NULL,\n"
-            + "	shift_date text NOT NULL,\n"
-            + "	shift_time integer NOT NULL,\n"
-            + " branch_id integer NOT NULL,\n"
-            + "	role integer NOT NULL,\n"
-            + "	FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE,\n"
-            + "	FOREIGN KEY(employee_id) REFERENCES EMPLOYEES(id) ON DELETE CASCADE,\n"
-            + "	FOREIGN KEY(shift_date, shift_time, branch_id) REFERENCES SHIFTS(shift_date, shift_time, branch_id) ON DELETE CASCADE,\n"
-            + " PRIMARY KEY (employee_id, shift_date, shift_time)\n"
-            + ");";
-    
-    private static final String createShiftRoleToRequiredTableQuery = "CREATE TABLE IF NOT EXISTS SHIFT_ROLE_TO_REQUIRED (\n"
-            + "	shift_date text NOT NULL,\n"
-            + "	shift_time integer NOT NULL,\n"
-            + " branch_id integer NOT NULL,\n"
-            + "	role integer NOT NULL,\n"
-            + "	required integer NOT NULL,\n"
-            + "	FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE,\n"
-            + "	FOREIGN KEY(shift_date, shift_time, branch_id) REFERENCES SHIFTS(shift_date, shift_time, branch_id) ON DELETE CASCADE,\n"
-            + " PRIMARY KEY (shift_date, shift_time, branch_id, role)\n"
-            + ");";
-    
-    
-    private static final String createBranchesTableQuery = "CREATE TABLE IF NOT EXISTS BRANCHES (\n"
-            + "	id integer PRIMARY KEY,\n"
-            + " hr_manager_id text NOT NULL,\n"
-            + " last_date_for_submitting_availability text NOT NULL,\n"
-            + " FOREIGN KEY(hr_manager_id) REFERENCES EMPLOYEES(id)\n"
-            + ");";
+
             
-    
+    private DBObj(){
+        connectToDB();
+        this.employeeTableLock = new Object();
+        this.employeeToRoleTableLock = new Object();
+        this.shiftsTableLock = new Object();
+        this.shiftAvailabilityTableLock = new Object();
+        this.shiftToEmployeeTableLock = new Object();
+        this.shiftRoleToRequiredTableLock = new Object();
+        this.branchesTableLock = new Object();
+    }
+
+    public static DBObj getInstance(){
+        if(instance == null){
+            instance = new DBObj();
+        }
+        return instance;
+
+    }
     // ---------------------------- Connection / Creation ----------------------------
     
-    public static void connectToDB() {
+    private void connectToDB() {
 
         String url = "jdbc:sqlite:" + DB_NAME;
         // DriverManager will try to connect to the database file. 
@@ -117,7 +81,7 @@ public class Database {
     // ---------------------------- CRUD Methods ----------------------------
 
     /// submit availability to shift
-    public static void submitAvailability(String employeeId, String shiftDate, ShiftTime shiftTime){
+    public void submitAvailability(String employeeId, String shiftDate, ShiftTime shiftTime){
         String url = "jdbc:sqlite:" + DB_NAME;
         String query = "INSERT INTO SHIFT_AVAILABILITY (employee_id, shift_date, shift_time) VALUES (?, ?, ?)";
     
@@ -136,7 +100,7 @@ public class Database {
     }
 
     /// remove availability for shift
-    public static void removeAvailability(String employeeId, String shiftDate, ShiftTime shiftTime){
+    public void removeAvailability(String employeeId, String shiftDate, ShiftTime shiftTime){
         String url = "jdbc:sqlite:" + DB_NAME;
         String query = "DELETE FROM SHIFT_AVAILABILITY WHERE employee_id = ? AND shift_date = ? AND shift_time = ?";
     
@@ -155,7 +119,7 @@ public class Database {
     }
 
     /// change password of employee
-    public static void changePassword(String id, String newPassword){
+    public void changePassword(String id, String newPassword){
         String url = "jdbc:sqlite:" + DB_NAME;
         String query = "UPDATE EMPLOYEES SET password = ? WHERE id = ?";
         
@@ -174,7 +138,7 @@ public class Database {
     }
 
     /// add shift to db
-    public static void addShift(String shiftDate, ShiftTime shiftTime, EnumMap<Role,Integer> requiredEmployees, int branchId){
+    public void addShift(String shiftDate, ShiftTime shiftTime, EnumMap<Role,Integer> requiredEmployees, int branchId){
         String url = "jdbc:sqlite:" + DB_NAME;
         String queryShift = "INSERT INTO SHIFTS (shift_date, shift_time, branch_id) VALUES (?, ?, ?)";
         String queryShiftRoleToRequired = "INSERT INTO SHIFT_ROLE_TO_REQUIRED (shift_date, shift_time, branch_id, role, required) VALUES (?, ?, ?, ?, ?)";
@@ -207,7 +171,7 @@ public class Database {
     }
 
     /// remove shift from db
-    public static void removeShift(String shiftDate, ShiftTime shiftTime, int branchId){
+    public void removeShift(String shiftDate, ShiftTime shiftTime, int branchId){
         String url = "jdbc:sqlite:" + DB_NAME;
         String query = "DELETE FROM SHIFTS WHERE shift_date = ? AND shift_time = ? AND branch_id = ?";
         
@@ -230,7 +194,7 @@ public class Database {
     }
 
     /// assign employee to shift
-    public static void assignEmployeeToShift(String employeeId, String shiftDate, ShiftTime shiftTime, Role role, int branchId){
+    public void assignEmployeeToShift(String employeeId, String shiftDate, ShiftTime shiftTime, Role role, int branchId){
         String url = "jdbc:sqlite:" + DB_NAME;
         String query1 = "INSERT INTO SHIFT_TO_EMPLOYEE (employee_id, shift_date, shift_time, branch_id, role) VALUES (?, ?, ?, ?, ?)";
         String query2 = "UPDATE SHIFT_ROLE_TO_REQUIRED SET required = required - 1 WHERE shift_date = ? AND shift_time = ? AND branch_id = ? AND role = ?";
@@ -259,7 +223,7 @@ public class Database {
     }
 
     /// remove employee from shift
-    public static void removeEmployeeFromShift(String employeeId, String shiftDate, ShiftTime shiftTime, Role role, int branchId){
+    public void removeEmployeeFromShift(String employeeId, String shiftDate, ShiftTime shiftTime, Role role, int branchId){
         String url = "jdbc:sqlite:" + DB_NAME;
         String query1 = "DELETE FROM SHIFT_TO_EMPLOYEE WHERE employee_id = ? AND shift_date = ? AND shift_time = ? AND branch_id = ?";
         String query2 = "UPDATE SHIFT_ROLE_TO_REQUIRED SET required = required + 1 WHERE shift_date = ? AND shift_time = ? AND branch_id = ? AND role = ?";
@@ -287,7 +251,7 @@ public class Database {
     }
 
     /// register new employee to db
-    public static void addEmployee(String id, String name, String password, int employmentType, int salary, String bankAccountId, int branchId) {
+    public void addEmployee(String id, String name, String password, int employmentType, int salary, String bankAccountId, int branchId) {
 
         String url = "jdbc:sqlite:" + DB_NAME;
         String query = "INSERT INTO EMPLOYEES (id, name, password, employment_type, salary, bank_account_id, branch_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -314,7 +278,7 @@ public class Database {
     }
 
     /// remove employee from db
-    public static void removeEmployee(String id) {
+    public void removeEmployee(String id) {
         String url = "jdbc:sqlite:" + DB_NAME;
         String query = "DELETE FROM EMPLOYEES WHERE id = ?";
     
@@ -334,7 +298,7 @@ public class Database {
     }
 
     /// assign new role to employee
-    public static void assignNewRoleToEmployee(String id, Role role){
+    public void assignNewRoleToEmployee(String id, Role role){
         String url = "jdbc:sqlite:" + DB_NAME;
         String query = "INSERT INTO EMPLOYEE_TO_ROLE (employee_id, role) VALUES (?, ?)";
     
@@ -352,7 +316,7 @@ public class Database {
     }
 
     /// set last date for submitting shifts
-    public static void setLastDateForSubmittingShifts(String date, int branchId){
+    public void setLastDateForSubmittingShifts(String date, int branchId){
         String url = "jdbc:sqlite:" + DB_NAME;
         String query = "UPDATE BRANCHES SET last_date_for_submitting_availability = ? WHERE id = ?";
     
@@ -378,12 +342,104 @@ public class Database {
 
     
     // ArrayList<branchId>
-    public static ArrayList<int> loadData(){
-
+    public ArrayList<Integer> loadData(){
+        String url = "jdbc:sqlite:" + DB_NAME;
+        String query = "SELECT id FROM BRANCHES";
+        ArrayList<Integer> branchIds = new ArrayList<Integer>();
+    
+        try (Connection conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(query)) {
+            if (conn != null) {
+                ResultSet rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    branchIds.add(rs.getInt("id"));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Failed to load branch data: " + e.getMessage());
+        }
+        return branchIds;
+            
     }
 
     public static Branch getBranchData(int branchId){
-
+        
         
     }
 
+
+
+
+
+
+    // ---------------------------- Table Creation Queries ----------------------------
+
+    private static final String createEmployeeTableQuery = "CREATE TABLE IF NOT EXISTS EMPLOYEES (\n"
+    + "	id text PRIMARY KEY,\n"
+    + "	name text NOT NULL,\n"
+    + "	password text NOT NULL,\n"
+    + "	employment_type integer NOT NULL,\n"
+    + "	salary integer NOT NULL,\n"
+    + "	bank_account_id text NOT NULL\n"
+    + " branch_id integer NOT NULL,\n"
+    + " FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE\n"
+    + ");";
+
+    private static final String createEmployeeToRoleTableQuery = "CREATE TABLE IF NOT EXISTS EMPLOYEE_TO_ROLE (\n"
+    + "	employee_id text NOT NULL,\n"
+    + "	role integer NOT NULL,\n"
+    + "	FOREIGN KEY(employee_id) REFERENCES EMPLOYEES(id) ON DELETE CASCADE\n"
+    + " PRIMARY KEY (employee_id, role)\n"
+    + ");";
+
+    static final String createShiftsTableQuery = "CREATE TABLE IF NOT EXISTS SHIFTS (\n"
+    + " shift_date text NOT NULL,\n"
+    + " shift_time integer NOT NULL,\n"
+    + " branch_id integer NOT NULL,\n"
+    + " FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE,\n"
+    + " primary key (shift_date, shift_time, branch_id)\n"
+    + ");";
+
+    private static final String createShiftAvailabilityTableQuery = "CREATE TABLE IF NOT EXISTS SHIFT_AVAILABILITY (\n"
+    + "	employee_id text NOT NULL,\n"
+    + "	shift_date text NOT NULL,\n"
+    + "	shift_time integer NOT NULL,\n"
+    + " branch_id integer NOT NULL,\n"
+    + " FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE,\n"
+    + "	FOREIGN KEY(employee_id) REFERENCES EMPLOYEES(id) ON DELETE CASCADE,\n"
+    + "	FOREIGN KEY(shift_date, shift_time, branch_id) REFERENCES SHIFTS(shift_date, shift_time, branch_id) ON DELETE CASCADE,\n"
+    + " PRIMARY KEY (employee_id, shift_date, shift_time)\n"
+    + ");";
+
+    private static final String createShiftToEmployeeTableQuery = "CREATE TABLE IF NOT EXISTS SHIFT_TO_EMPLOYEE (\n"
+    + "	employee_id text NOT NULL,\n"
+    + "	shift_date text NOT NULL,\n"
+    + "	shift_time integer NOT NULL,\n"
+    + " branch_id integer NOT NULL,\n"
+    + "	role integer NOT NULL,\n"
+    + "	FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE,\n"
+    + "	FOREIGN KEY(employee_id) REFERENCES EMPLOYEES(id) ON DELETE CASCADE,\n"
+    + "	FOREIGN KEY(shift_date, shift_time, branch_id) REFERENCES SHIFTS(shift_date, shift_time, branch_id) ON DELETE CASCADE,\n"
+    + " PRIMARY KEY (employee_id, shift_date, shift_time)\n"
+    + ");";
+
+    private static final String createShiftRoleToRequiredTableQuery = "CREATE TABLE IF NOT EXISTS SHIFT_ROLE_TO_REQUIRED (\n"
+    + "	shift_date text NOT NULL,\n"
+    + "	shift_time integer NOT NULL,\n"
+    + " branch_id integer NOT NULL,\n"
+    + "	role integer NOT NULL,\n"
+    + "	required integer NOT NULL,\n"
+    + "	FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE,\n"
+    + "	FOREIGN KEY(shift_date, shift_time, branch_id) REFERENCES SHIFTS(shift_date, shift_time, branch_id) ON DELETE CASCADE,\n"
+    + " PRIMARY KEY (shift_date, shift_time, branch_id, role)\n"
+    + ");";
+
+
+    private static final String createBranchesTableQuery = "CREATE TABLE IF NOT EXISTS BRANCHES (\n"
+    + "	id integer PRIMARY KEY,\n"
+    + " hr_manager_id text NOT NULL,\n"
+    + " last_date_for_submitting_availability text NOT NULL,\n"
+    + " FOREIGN KEY(hr_manager_id) REFERENCES EMPLOYEES(id)\n"
+    + ");";
+
+}

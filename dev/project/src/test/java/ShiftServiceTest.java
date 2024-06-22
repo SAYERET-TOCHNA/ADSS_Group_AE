@@ -3,11 +3,11 @@ import java.util.EnumMap;
 
 import org.example.Business.Enums.Role;
 import org.example.Business.Enums.ShiftTime;
-import org.example.Service.ShiftService;
+import org.example.Business.ShiftController;
 
 public class ShiftServiceTest {
 
-    private static ShiftService service = new ShiftService();
+    private static ShiftController service = new ShiftController();
 
     public static void main(String[] args) {
         testAddValidShift();

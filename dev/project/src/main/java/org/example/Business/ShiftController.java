@@ -1,4 +1,4 @@
-package org.example.Service;
+package org.example.Business;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -6,14 +6,13 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-
-import org.example.Business.Shift;
 import org.example.Business.Enums.ShiftTime;
 import org.example.Business.Enums.Role;
 
 // EnumHashMap Lit af
 
-public class ShiftService {
+//TODO: change to ShiftController - move to Business
+public class ShiftController {
 
     private HashMap< LocalDate , EnumMap<ShiftTime, Shift> > shifts;
     //concurrent since many employees can submit at the same time
@@ -22,7 +21,7 @@ public class ShiftService {
 
     //------------------- construction -------------------
 
-    public ShiftService() {
+    public ShiftController() {
         shifts = new HashMap< LocalDate , EnumMap<ShiftTime, Shift> >();
         availableEmployees = new ConcurrentHashMap< LocalDate , EnumMap<ShiftTime, ArrayList<String>> >();
         lastDateForSubmitting = LocalDate.now();
