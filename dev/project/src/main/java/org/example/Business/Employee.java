@@ -34,10 +34,10 @@ public class Employee {
         this.roles = EnumSet.noneOf(Role.class);
         this.salary = salary;
         this.bankAccountId = bankAccountId;
+        this.startDate = LocalDate.now();
         this.shifts = new ArrayList<Trio<LocalDate , ShiftTime, Role>>();
     }
     private Employee(){}
-
 
     public static Employee createEmployee(String name, String id, int branchId, EmploymentType employmentType, int salary, String bankAccountId){
         if(isLegalId(id) && isLegalId(bankAccountId) && salary >= 0){
@@ -48,6 +48,29 @@ public class Employee {
         }
     }
 
+    //------------------- loading from db -------------------
+
+    public static Employee loadEmployee(String name, String id, int branchId, EmploymentType employmentType, String password, int salary, String bankAccountId, LocalDate startDate, ArrayList<Trio<LocalDate , ShiftTime, Role>> shifts){
+        if(isLegalId(id) && isLegalId(bankAccountId) && salary >= 0){
+            return new Employee(name, id, branchId, employmentType, password, salary, bankAccountId, startDate, shifts);
+        }
+        else{
+            throw new IllegalArgumentException("Illegal Employee id, bank account id or salary when loading from db!! for id: " + id);
+        }
+    }
+
+    private Employee(String name, String id, int branchId, EmploymentType employmentType, String password, int salary, String bankAccountId, LocalDate startDate, ArrayList<Trio<LocalDate , ShiftTime, Role>> shifts){
+        this.name = name;
+        this.id = id;
+        this.password = password;
+        this.branchId = branchId;
+        this.employmentType = employmentType;
+        this.roles = EnumSet.noneOf(Role.class);
+        this.salary = salary;
+        this.bankAccountId = bankAccountId;
+        this.startDate = startDate;
+        this.shifts = shifts;
+    }
     //------------------- getter & setters -------------------
 
     public String getName() {
@@ -70,14 +93,6 @@ public class Employee {
         return bankAccountId;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setEmploymentType(EmploymentType employmentType) {
-        this.employmentType = employmentType;
-    }
-
     public void setSalary(int salary) {
         if(salary > 0)
             this.salary = salary;
@@ -96,13 +111,26 @@ public class Employee {
 
     public void setPassword(String password) {
         this.password = password;
+
     }
 
     public boolean checkPassword(String password){
         return this.password.equals(password);
     }
 
-    public void addShift(LocalDate date, ShiftTime time, Role role){
+    public String getPassword(){
+        return this.password;
+    }
+
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
+    public int getBranchId() {
+        return branchId;
+    }
+
+    public void addToShift(LocalDate date, ShiftTime time, Role role){ 
         if(isInShift(date, time))
             throw new IllegalArgumentException("Employee is already in shift at this time");
         this.shifts.add(new Trio<LocalDate, ShiftTime, Role>(date, time, role));
@@ -118,7 +146,7 @@ public class Employee {
         return false;
     }
 
-    public void removeShift(LocalDate date, ShiftTime time){
+    public void removeFromShift(LocalDate date, ShiftTime time){
         for(Trio<LocalDate, ShiftTime, Role> shift : this.shifts){
             if(shift.getFirst().equals(date) && shift.getSecond().equals(time)){
                 this.shifts.remove(shift);

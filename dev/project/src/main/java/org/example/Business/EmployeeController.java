@@ -7,17 +7,34 @@ import java.util.HashMap;
 import org.example.Business.Enums.EmploymentType;
 import org.example.Business.Enums.Role;
 import org.example.Business.Enums.ShiftTime;
+import org.example.DataAccess.EmployeeControllerDao;
 import org.example.Utilities.Trio;
 //TODO: change to EmployeeController - move to Business
 // the EmpManager class manages the employees in the company
 public class EmployeeController {
 
+    private int branchId;
+
     private HashMap<String, Employee> employees;
+
+    private EmployeeControllerDao dao;
 
     //------------------- construction -------------------
 
-    public EmployeeController() {
+    public EmployeeController(int branchId) {
+        this.branchId=branchId;
         employees = new HashMap<String, Employee>();
+        this.dao = new EmployeeControllerDao(branchId);
+    }
+
+    public static EmployeeController loadEmployeeControllerFromDB(int branchId){
+        return new EmployeeController(branchId, true);
+    }
+
+    private EmployeeController(int branchId, boolean discrimnator){
+        this.branchId = branchId;
+        this.dao = new EmployeeControllerDao(branchId);
+        this.employees = dao.loadEmployees();
     }
 
     //------------------- methods -------------------
@@ -29,6 +46,7 @@ public class EmployeeController {
         else{
             Employee newEmployee = Employee.createEmployee(name, id, branchId, employmentType, salary, bankAccountId);
             this.employees.put(id, newEmployee);
+            this.dao.addEmployee(id, name, newEmployee.getPassword(), employmentType.ordinal() , salary, bankAccountId, LocalDate.now());
             return newEmployee;
         }
     }
@@ -39,6 +57,7 @@ public class EmployeeController {
         }
         else{
             this.employees.put(employee.getId(), employee);
+            this.dao.addEmployee(employee.getId(), employee.getName(), employee.getPassword(), employee.getEmploymentType().ordinal(), employee.getSalary(), employee.getBankAccountId(), employee.getStartDate());
         }
     }
 
@@ -48,6 +67,7 @@ public class EmployeeController {
             throw new IllegalArgumentException("Employee with id " + id + " doesn't exists");
         }
         else{
+            this.dao.removeEmployee(id);
             return this.employees.remove(id);
         }
     }
@@ -67,6 +87,7 @@ public class EmployeeController {
         if(!this.employees.containsKey(employeeId)){
             throw new IllegalArgumentException("Employee with id " + employeeId + " does not exist");
         }
+        this.dao.assignRoleToEmployee(employeeId, role);
         this.employees.get(employeeId).addRole(role);
     }
 
@@ -75,6 +96,7 @@ public class EmployeeController {
             throw new IllegalArgumentException("Employee with id " + employeeId + " does not exist");
         }
         this.employees.get(employeeId).setPassword(newPassword);
+        this.dao.setEmployeePassword(employeeId, newPassword);
     }
 
     public boolean checkPassword(String employeeId, String password) {
@@ -109,14 +131,14 @@ public class EmployeeController {
         if(!this.employees.containsKey(employeeId)){
             throw new IllegalArgumentException("Employee with id " + employeeId + " does not exist");
         }
-        this.employees.get(employeeId).addShift(date, time, role);
+        this.employees.get(employeeId).addToShift(date, time, role);
     }
 
     public void removeShift(String employeeId, LocalDate date, ShiftTime time) {
         if(!this.employees.containsKey(employeeId)){
             throw new IllegalArgumentException("Employee with id " + employeeId + " does not exist");
         }
-        this.employees.get(employeeId).removeShift(date, time);
+        this.employees.get(employeeId).removeFromShift(date, time);
     }
 
     public boolean isInShift(String employeeId, LocalDate date, ShiftTime time) {
@@ -131,6 +153,12 @@ public class EmployeeController {
             throw new IllegalArgumentException("Employee with id " + employeeId + " does not exist");
         }
         return this.employees.get(employeeId).getShifts();
+    }
+
+    // data loading
+    public String loadHRMId()
+    {
+        return this.dao.loadHRMId();
     }
 
 

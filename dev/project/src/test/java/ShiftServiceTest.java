@@ -7,7 +7,7 @@ import org.example.Business.ShiftController;
 
 public class ShiftServiceTest {
 
-    private static ShiftController service = new ShiftController();
+    private static ShiftController service = new ShiftController(1);
 
     public static void main(String[] args) {
         testAddValidShift();

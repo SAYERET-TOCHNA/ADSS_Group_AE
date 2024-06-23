@@ -16,7 +16,7 @@ import org.example.Utilities.Trio;
 
 public class Main {
 
-    private static ArrayList<Employee> employees = new ArrayList<Employee>();
+    private static ArrayList<Employee> employees = new ArrayList<Employee>(); // why?
     private static HashMap<Integer , Branch> branches = new HashMap<Integer , Branch>();
 
     private static int loggedInBranchId = -1;
@@ -120,7 +120,7 @@ public class Main {
             System.out.println("11. print available employees for shift"); //nodb
             System.out.println("12. add/recruit new Employee to Branch");
             System.out.println("13. remove/fire Employee from Branch");
-            System.out.println("14. assign new Role to Employee");
+            System.out.println("14. assign new Role to Employee"); //v
             System.out.println("15. set last date for submitting shifts"); //TODO: add to db
             System.out.println("16. log out"); //nodb
             System.out.println("17. Exit system"); //nodb

@@ -1,5 +1,6 @@
 package org.example.Business;
 
+import java.net.DatagramPacket;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -8,25 +9,49 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.example.Business.Enums.ShiftTime;
 import org.example.Business.Enums.Role;
+import org.example.DataAccess.ShiftControllerDao;
 
 // EnumHashMap Lit af
 
 //TODO: change to ShiftController - move to Business
 public class ShiftController {
 
+    private int branchId;
+
     private HashMap< LocalDate , EnumMap<ShiftTime, Shift> > shifts;
     //concurrent since many employees can submit at the same time
     private ConcurrentHashMap< LocalDate , EnumMap<ShiftTime, ArrayList<String>> > availableEmployees;
     private LocalDate lastDateForSubmitting;
 
+    ShiftControllerDao dao;
+    
     //------------------- construction -------------------
 
-    public ShiftController() {
+    public ShiftController(int branchId) {
         shifts = new HashMap< LocalDate , EnumMap<ShiftTime, Shift> >();
         availableEmployees = new ConcurrentHashMap< LocalDate , EnumMap<ShiftTime, ArrayList<String>> >();
         lastDateForSubmitting = LocalDate.now();
+        this.branchId = branchId;
+        dao = new ShiftControllerDao(branchId);
     }
+
+    //------------------ loading from db ------------------
+
+    public static ShiftController loadShiftControllerFromDB(int branchId){
+        return new ShiftController(branchId, true);
+
+    }
+
     
+    private ShiftController(int branchId, boolean discrimnator)
+    {
+        this.branchId=branchId;
+        this.dao = new ShiftControllerDao(branchId);
+        this.shifts=dao.loadShiftsFromDB();
+        this.availableEmployees = dao.loadAvailableEmployeesFromDB();
+        this.lastDateForSubmitting = dao.loadLastDateForSubmittingShiftsFromDB();
+        
+    }
     //------------------- methods -------------------
 
     public void addShift(LocalDate date, ShiftTime shiftTime, EnumMap<Role, Integer> requiredEmployees){
@@ -35,14 +60,15 @@ public class ShiftController {
             throw new IllegalArgumentException("Shift already exists");
         }
         else{
-            Shift newShift = Shift.createShift(date, shiftTime, requiredEmployees);
+            Shift newShift = Shift.createShift(date, shiftTime, this.branchId, requiredEmployees);
             if(this.shifts.containsKey(date)){
                 this.shifts.get(date).put(shiftTime, newShift);
             }
             else{
                 this.shifts.put(date, new EnumMap<ShiftTime, Shift>(ShiftTime.class));
                 this.shifts.get(date).put(shiftTime, newShift);
-            }  
+            }
+
         }
     }
 
@@ -51,6 +77,7 @@ public class ShiftController {
             throw new IllegalArgumentException("Shift does not exist");
         }
         this.shifts.get(date).remove(time);
+        this.dao.removeShift(date, time);
     }
 
     public void addAvailability(String eId, LocalDate date, ShiftTime time){
@@ -71,6 +98,9 @@ public class ShiftController {
             this.availableEmployees.get(date).get(time).add(eId);
         else
             throw new IllegalArgumentException("Employee " + eId + " already submitted  availability for shift " + date.toString() + " " + time.toString());
+
+        this.dao.submitAvailabilityForShift(eId, date, time);
+        
     }
 
     public void removeAvailability(String eId, LocalDate date, ShiftTime time){
@@ -93,6 +123,7 @@ public class ShiftController {
         for(int i = 0; i < this.availableEmployees.get(date).get(time).size(); i++){
             if(this.availableEmployees.get(date).get(time).get(i).equals(eId)){
                 this.availableEmployees.get(date).get(time).remove(i);
+                this.dao.removeAvailability(eId, date, time);
                 return;
             }
         }
@@ -107,17 +138,20 @@ public class ShiftController {
             throw new IllegalArgumentException("Employee did not submit availability for this shift");
             
         this.shifts.get(date).get(time).addEmployee(eId, role);
+        this.dao.addEmployeeToShift(eId, date, time, role);
     }
 
     public void removeEmployeeFromShift(String eId , LocalDate date, ShiftTime time, Role role){ 
         if(!this.shifts.containsKey(date) || !this.shifts.get(date).containsKey(time))
             throw new IllegalArgumentException("Shift does not exist");
         this.shifts.get(date).get(time).removeEmployee(eId, role);
+        this.dao.removeEmployeeFromShift(eId, date, time, role);
     }
 
     public void setLastDateForSubmitting(LocalDate date){
         if(date.isBefore(LocalDate.now()))
             throw new IllegalArgumentException("cannot submit date from the past");
+        this.dao.setLastDateForSubmittingShifts(date);
         this.lastDateForSubmitting = date;
     }
 

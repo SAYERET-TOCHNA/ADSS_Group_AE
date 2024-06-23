@@ -17,13 +17,15 @@ public class Shift {
     private EnumMap<Role, Integer> requiredEmployees;
     private ShiftTime shiftTime;
     private LocalDate date;
+    private int branchId;
 
     //------------------- construction (factory) -------------------
 
-    private Shift(LocalDate date, ShiftTime shiftTime, EnumMap<Role, Integer> requiredEmployees) {
+    private Shift(LocalDate date, ShiftTime shiftTime, int branchId, EnumMap<Role, Integer> requiredEmployees) {
         this.date = date;
         this.shiftTime = shiftTime;
         this.requiredEmployees = requiredEmployees;
+        this.branchId = branchId;
         this.employees = new EnumMap<Role, ArrayList<String>>(Role.class);
         for( Role role : requiredEmployees.keySet() ){
             this.employees.put(role, new ArrayList<String>());
@@ -32,7 +34,7 @@ public class Shift {
     private Shift(){}
     
     
-    public static Shift createShift(LocalDate date , ShiftTime shiftTime, EnumMap<Role, Integer> requiredEmployees){
+    public static Shift createShift(LocalDate date , ShiftTime shiftTime , int branchId, EnumMap<Role, Integer> requiredEmployees){
         // checks if asked to require negative number of employees
         for (Role role : requiredEmployees.keySet()){
             if ( requiredEmployees.get(role) < 0 )
@@ -45,16 +47,30 @@ public class Shift {
         if( date.isBefore(LocalDate.now()))
             throw new IllegalArgumentException("Shift date must not be in the past. given date: " + date.toString()+ " current date: " + LocalDate.now().toString());
 
-        return new Shift(date, shiftTime, requiredEmployees);
+        return new Shift(date, shiftTime, branchId, requiredEmployees);
+    }
+
+    //------------------- loading from db -------------------
+
+    public static Shift loadShift(LocalDate date, ShiftTime shiftTime, int branchId, EnumMap<Role, Integer> requiredEmployees, EnumMap<Role, ArrayList<String>> employees){
+        return new Shift(date, shiftTime, branchId, requiredEmployees, employees);
+    }
+
+    private Shift(LocalDate date, ShiftTime shiftTime, int branchId, EnumMap<Role, Integer> requiredEmployees, EnumMap<Role, ArrayList<String>> employees){
+        this.date = date;
+        this.shiftTime = shiftTime;
+        this.branchId = branchId;
+        this.requiredEmployees = requiredEmployees;
+        this.employees = employees;
     }
 
     //------------------- getter & setters -------------------
 
-    public ShiftTime getShiftTime() {
+    public ShiftTime getTime() {
         return shiftTime;
     }
 
-    public LocalDate getShiftDate() {
+    public LocalDate getDate() {
         return date;
     }
 
@@ -64,7 +80,7 @@ public class Shift {
         return employees.get(role);
     }
 
-    public void addEmployee(String id , Role role){
+    public void addEmployee(String id , Role role){//v
 
         if(!employees.containsKey(role)) 
             throw new IllegalArgumentException("shift" + date.toString() + " " + shiftTime.toString() + " does not require employees of role: " + role.toString());
@@ -77,7 +93,7 @@ public class Shift {
                 if(eId.equals(id))
                     throw new IllegalArgumentException("Employee " + id + " is already assigned to shift" + date.toString() + " " + shiftTime.toString() + " as " + r.toString());
 
-        employees.get(role).add(id);
+                    employees.get(role).add(id);
         requiredEmployees.put(role, requiredEmployees.get(role) - 1);
     }
 
