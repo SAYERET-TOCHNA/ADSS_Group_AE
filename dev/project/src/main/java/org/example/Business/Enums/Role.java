@@ -11,5 +11,6 @@ public enum Role {
     MOVER,
     CLEANER,
     SECURITY,
-    WAREHOUSE
+    WAREHOUSE,
+    DRIVER
 }

@@ -35,7 +35,7 @@ public class ShiftServiceTest {
             EnumMap<Role, Integer> requiredEmployees = new EnumMap<>(Role.class);
             requiredEmployees.put(Role.SHIFT_MANAGER, 1);
             LocalDate tomorrow = LocalDate.now().plusDays(1);
-            service.addShift(tomorrow, ShiftTime.MORNING, requiredEmployees);
+            service.addShift(tomorrow, ShiftTime.MORNING, false, requiredEmployees);
             assertCondition(service.getRequiredEmployeesForShift(tomorrow, ShiftTime.MORNING) != null, "Valid Shift Added");
         } catch (Exception e) {
             e.printStackTrace();
@@ -46,9 +46,9 @@ public class ShiftServiceTest {
         LocalDate date = LocalDate.now().plusDays(2);
         EnumMap<Role, Integer> roles = new EnumMap<>(Role.class);
         roles.put(Role.SHIFT_MANAGER, 1);
-        service.addShift(date, ShiftTime.MORNING, roles);
+        service.addShift(date, ShiftTime.MORNING,false, roles);
         try {
-            service.addShift(date, ShiftTime.MORNING, roles);
+            service.addShift(date, ShiftTime.MORNING,false, roles);
             assertCondition(false, "Shift Already Exists - should have thrown an exception");
         } catch (IllegalArgumentException e) {
             assertCondition(true, "Correctly caught duplicate shift addition");
@@ -60,7 +60,7 @@ public class ShiftServiceTest {
             LocalDate yesterday = LocalDate.now().minusDays(1);
             EnumMap<Role, Integer> roles = new EnumMap<>(Role.class);
             roles.put(Role.SHIFT_MANAGER, 1);
-            service.addShift(yesterday, ShiftTime.MORNING, roles);
+            service.addShift(yesterday, ShiftTime.MORNING,false, roles);
             assertCondition(false, "Shift with Past Date - should have thrown an exception");
         } catch (IllegalArgumentException e) {
             assertCondition(true, "Correctly caught addition of a shift with a past date");
@@ -135,7 +135,7 @@ public class ShiftServiceTest {
         LocalDate tomorrow = LocalDate.now().plusDays(19);
         EnumMap<Role, Integer> roles = new EnumMap<>(Role.class);
         roles.put(Role.SHIFT_MANAGER, 1);
-        service.addShift(tomorrow, ShiftTime.MORNING, roles);
+        service.addShift(tomorrow, ShiftTime.MORNING,false, roles);
         service.setLastDateForSubmitting(tomorrow.plusDays(20) );
         service.addAvailability(employeeId, tomorrow, ShiftTime.MORNING);
         try {
@@ -162,7 +162,7 @@ public class ShiftServiceTest {
         LocalDate tomorrow = LocalDate.now().plusDays(69);
         EnumMap<Role, Integer> roles = new EnumMap<>(Role.class);
         roles.put(Role.SHIFT_MANAGER, 1);
-        service.addShift(tomorrow, ShiftTime.MORNING, roles);
+        service.addShift(tomorrow, ShiftTime.MORNING,false, roles);
         service.setLastDateForSubmitting(tomorrow.plusDays(34));
         service.addAvailability(employeeId, tomorrow, ShiftTime.MORNING);
         service.addEmployeeToShift(employeeId, tomorrow, ShiftTime.MORNING, Role.SHIFT_MANAGER);

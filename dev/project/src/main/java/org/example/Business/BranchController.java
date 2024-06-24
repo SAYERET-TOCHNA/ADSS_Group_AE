@@ -118,13 +118,13 @@ public class BranchController {
         return branch.isEmployeeLoggedIn(eId);
     }
 
-    public void addShift(LocalDate date, ShiftTime time, EnumMap<Role,Integer> requiredEmployees, String requestingUserId, int branchId){
+    public void addShift(LocalDate date, ShiftTime time, boolean hasDelivery, EnumMap<Role,Integer> requiredEmployees, String requestingUserId, int branchId){
         Branch branch = branches.get(branchId);
         if(branch == null){
             branch = dao.getBranch(branchId);
             branches.put(branchId, branch);
         }
-        branch.addShift(date, time, requiredEmployees, requestingUserId);
+        branch.addShift(date, time, hasDelivery, requiredEmployees, requestingUserId);
     }
 
     public void removeShift(LocalDate date, ShiftTime time, String requestingUserId, int branchId){

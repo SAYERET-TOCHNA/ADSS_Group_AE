@@ -18,14 +18,16 @@ public class Shift {
     private ShiftTime shiftTime;
     private LocalDate date;
     private int branchId;
+    private boolean hasDelivery;
 
     //------------------- construction (factory) -------------------
 
-    private Shift(LocalDate date, ShiftTime shiftTime, int branchId, EnumMap<Role, Integer> requiredEmployees) {
+    private Shift(LocalDate date, ShiftTime shiftTime, int branchId, boolean hasDelivery, EnumMap<Role, Integer> requiredEmployees) {
         this.date = date;
         this.shiftTime = shiftTime;
         this.requiredEmployees = requiredEmployees;
         this.branchId = branchId;
+        this.hasDelivery = hasDelivery;
         this.employees = new EnumMap<Role, ArrayList<String>>(Role.class);
         for( Role role : requiredEmployees.keySet() ){
             this.employees.put(role, new ArrayList<String>());
@@ -34,7 +36,7 @@ public class Shift {
     private Shift(){}
     
     
-    public static Shift createShift(LocalDate date , ShiftTime shiftTime , int branchId, EnumMap<Role, Integer> requiredEmployees){
+    public static Shift createShift(LocalDate date , ShiftTime shiftTime , int branchId, boolean hasDelivery, EnumMap<Role, Integer> requiredEmployees){
         // checks if asked to require negative number of employees
         for (Role role : requiredEmployees.keySet()){
             if ( requiredEmployees.get(role) < 0 )
@@ -46,20 +48,26 @@ public class Shift {
         // checks if the date is legal (not in the past)
         if( date.isBefore(LocalDate.now()))
             throw new IllegalArgumentException("Shift date must not be in the past. given date: " + date.toString()+ " current date: " + LocalDate.now().toString());
+        // checks condition hasDelivey --> hasWareHouseWorker
+        if(hasDelivery && !requiredEmployees.containsKey(Role.WAREHOUSE) || requiredEmployees.get(Role.WAREHOUSE) <= 0)
+            throw new IllegalArgumentException("Shift must have a warehouse worker if it has a delivery.");
+        if(hasDelivery && !requiredEmployees.containsKey(Role.DRIVER) || requiredEmployees.get(Role.DRIVER) <= 0)
+            throw new IllegalArgumentException("Shift must have a driver if it has a delivery.");
 
-        return new Shift(date, shiftTime, branchId, requiredEmployees);
+        return new Shift(date, shiftTime, branchId, hasDelivery, requiredEmployees);
     }
 
     //------------------- loading from db -------------------
 
-    public static Shift loadShift(LocalDate date, ShiftTime shiftTime, int branchId, EnumMap<Role, Integer> requiredEmployees, EnumMap<Role, ArrayList<String>> employees){
-        return new Shift(date, shiftTime, branchId, requiredEmployees, employees);
+    public static Shift loadShift(LocalDate date, ShiftTime shiftTime, int branchId, boolean hasDelivery, EnumMap<Role, Integer> requiredEmployees, EnumMap<Role, ArrayList<String>> employees){
+        return new Shift(date, shiftTime, branchId, hasDelivery, requiredEmployees, employees);
     }
 
-    private Shift(LocalDate date, ShiftTime shiftTime, int branchId, EnumMap<Role, Integer> requiredEmployees, EnumMap<Role, ArrayList<String>> employees){
+    private Shift(LocalDate date, ShiftTime shiftTime, int branchId, boolean hasDelivery, EnumMap<Role, Integer> requiredEmployees, EnumMap<Role, ArrayList<String>> employees){
         this.date = date;
         this.shiftTime = shiftTime;
         this.branchId = branchId;
+        this.hasDelivery = hasDelivery;
         this.requiredEmployees = requiredEmployees;
         this.employees = employees;
     }

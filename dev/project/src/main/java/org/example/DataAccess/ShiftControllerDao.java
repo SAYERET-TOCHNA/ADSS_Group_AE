@@ -35,8 +35,8 @@ public class ShiftControllerDao {
         this.dbObj.submitAvailability(eId, date, time, this.branchId);
     }
 
-    public void addShift(LocalDate date, ShiftTime shiftTime, EnumMap<Role, Integer> requiredEmployees){
-        this.dbObj.addShift(date, shiftTime, requiredEmployees, this.branchId);
+    public void addShift(LocalDate date, ShiftTime shiftTime, boolean hasDelivery, EnumMap<Role, Integer> requiredEmployees){
+        this.dbObj.addShift(date, shiftTime, hasDelivery, requiredEmployees, this.branchId);
     }
 
     public void addEmployeeToShift(String eId, LocalDate date, ShiftTime time, Role role){

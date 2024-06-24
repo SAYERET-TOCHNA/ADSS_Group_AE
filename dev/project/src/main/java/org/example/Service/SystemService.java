@@ -51,8 +51,8 @@ public class SystemService {
         branchController.setEmployeePassword(uId, oldPassword, newPassword, branchId);
     }
 
-    public static void addShiftToSchedule(LocalDate date, ShiftTime time, EnumMap<Role,Integer> requiredEmployees, String requestingUserId, int branchId){
-        branchController.addShift(date, time, requiredEmployees, requestingUserId, branchId);
+    public static void addShiftToSchedule(LocalDate date, ShiftTime time, boolean hasDelivery, EnumMap<Role,Integer> requiredEmployees, String requestingUserId, int branchId){
+        branchController.addShift(date, time, hasDelivery, requiredEmployees, requestingUserId, branchId);
     }
 
     public static void removeShiftFromSchedule(LocalDate date, ShiftTime time, String requestingUserId, int branchId){

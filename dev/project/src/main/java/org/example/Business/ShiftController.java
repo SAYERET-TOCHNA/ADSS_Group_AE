@@ -54,13 +54,13 @@ public class ShiftController {
     }
     //------------------- methods -------------------
 
-    public void addShift(LocalDate date, ShiftTime shiftTime, EnumMap<Role, Integer> requiredEmployees){
+    public void addShift(LocalDate date, ShiftTime shiftTime, boolean hasDelivery, EnumMap<Role, Integer> requiredEmployees){
 
         if(this.shifts.containsKey(date) && this.shifts.get(date).containsKey(shiftTime)){
             throw new IllegalArgumentException("Shift already exists");
         }
         else{
-            Shift newShift = Shift.createShift(date, shiftTime, this.branchId, requiredEmployees);
+            Shift newShift = Shift.createShift(date, shiftTime, this.branchId, hasDelivery, requiredEmployees);
             if(this.shifts.containsKey(date)){
                 this.shifts.get(date).put(shiftTime, newShift);
             }
@@ -70,7 +70,7 @@ public class ShiftController {
             }
 
         }
-        this.dao.addShift(date, shiftTime, requiredEmployees);
+        this.dao.addShift(date, shiftTime, hasDelivery, requiredEmployees);
     }
 
     public void removeShift(LocalDate date , ShiftTime time){ 

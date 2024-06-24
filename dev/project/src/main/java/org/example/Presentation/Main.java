@@ -2,9 +2,7 @@ package org.example.Presentation;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashMap;
 
-import org.example.Business.Branch;
 import org.example.Business.Employee;
 import org.example.Business.Enums.EmploymentType;
 import org.example.Business.Enums.Role;
@@ -341,6 +339,16 @@ public class Main {
                 time = ShiftTime.EVENING;
             else 
                 throw new IllegalArgumentException("Failed to add shift to schduele, Invalid time input.");
+
+            System.out.println("Does this shift have delivery? (y/n): ");
+            String deliveryStr = reader.readString();
+            boolean delivery;
+            if(deliveryStr.equals("y") || deliveryStr.equals("Y"))
+                delivery = true;
+            else if(deliveryStr.equals("n") || deliveryStr.equals("N"))
+                delivery = false;
+            else 
+                throw new IllegalArgumentException("Failed to add shift to schduele, Invalid delivery input.");
             
             EnumMap<Role , Integer> requiredEmployees = new EnumMap<Role , Integer>(Role.class);
             for(Role role : Role.values())
@@ -350,7 +358,7 @@ public class Main {
                 requiredEmployees.put(role, num);
             }
 
-            SystemService.addShiftToSchedule(date, time, requiredEmployees, loggedInUserId, loggedInBranchId);
+            SystemService.addShiftToSchedule(date, time, delivery, requiredEmployees, loggedInUserId, loggedInBranchId);
             System.out.println("Shift "+dateStr+" "+timeStr+" added successfully!");
             System.out.println("");
         }

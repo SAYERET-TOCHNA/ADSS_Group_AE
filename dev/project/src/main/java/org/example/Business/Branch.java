@@ -120,14 +120,14 @@ public class Branch {
     }
 
     /// add a new shift to the branch's schedule
-    public void addShift(LocalDate date, ShiftTime time, EnumMap<Role,Integer> requiredEmployees, String requestingUserId)
+    public void addShift(LocalDate date, ShiftTime time, boolean hasDelivery, EnumMap<Role,Integer> requiredEmployees, String requestingUserId)
     {
         if(!isEmployeeLoggedIn(requestingUserId))
             throw new IllegalArgumentException("requesting user " + requestingUserId + " is not logged in.");
         if(!requestingUserId.equals(this.HRManagerId))
             throw new IllegalArgumentException("user " + requestingUserId + " doesn't have permission to remove Employee from Shift");
         
-        shiftController.addShift(date, time, requiredEmployees); //might throw exception. which is ok.
+        shiftController.addShift(date, time, hasDelivery, requiredEmployees); //might throw exception. which is ok.
     }
 
     /// remove a shift from the branch's schedule

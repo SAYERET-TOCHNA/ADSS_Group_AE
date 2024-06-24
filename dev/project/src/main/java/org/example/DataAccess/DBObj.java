@@ -62,8 +62,6 @@ public class DBObj {
 // ---------------------------- CRUD Methods ----------------------------
 
 
-//////TODO: run files for role import
-
 
 // --------- Create
 
@@ -87,9 +85,9 @@ public class DBObj {
     }
 
     /// add shift to db
-    public void addShift(LocalDate shiftDate, ShiftTime shiftTime, EnumMap<Role,Integer> requiredEmployees, int branchId){
+    public void addShift(LocalDate shiftDate, ShiftTime shiftTime, boolean hasDelivery, EnumMap<Role,Integer> requiredEmployees, int branchId){
         String url = "jdbc:sqlite:" + DB_NAME;
-        String queryShift = "INSERT INTO SHIFTS (shift_date, shift_time, branch_id) VALUES (?, ?, ?)";
+        String queryShift = "INSERT INTO SHIFTS (shift_date, shift_time, branch_id, has_delivery) VALUES (?, ?, ?, ?)";
         String queryShiftRoleToRequired = "INSERT INTO SHIFT_ROLE_TO_REQUIRED (shift_date, shift_time, branch_id, role, required) VALUES (?, ?, ?, ?, ?)";
     
         try (Connection conn = DriverManager.getConnection(url);
@@ -100,6 +98,7 @@ public class DBObj {
                 pstmtShift.setString(1, shiftDate.toString());
                 pstmtShift.setInt(2, shiftTime.ordinal());
                 pstmtShift.setInt(3, branchId);
+                pstmtShift.setInt(4, hasDelivery ? 1 : 0);
                 pstmtShift.executeUpdate();
                 
                 // add required employees for each role
@@ -358,7 +357,7 @@ public class DBObj {
                 pstmt.setInt(2, time.ordinal());
                 pstmt.setInt(3, branchId);
                 ResultSet rs = pstmt.executeQuery();
-                shift = Shift.loadShift(date, time, branchId, this.loadRequiredEmployeesForShift(date, time, branchId), this.loadEmployeesForShift(date, time, branchId));
+                shift = Shift.loadShift(date, time, branchId, rs.getInt("has_delivery") == 1, this.loadRequiredEmployeesForShift(date, time, branchId), this.loadEmployeesForShift(date, time, branchId));
             }
         } catch (SQLException e) {
             throw new IllegalArgumentException("Failed to load shift data: " + e.getMessage());
