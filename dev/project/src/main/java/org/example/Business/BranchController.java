@@ -16,13 +16,19 @@ public class BranchController {
     private HashMap<Integer, Branch> branches;
     BranchControllerDao dao;
 
-//--------------------------- Construction ---------------------------
+    private static BranchController instance;
+//--------------------------- Construction (Singleton) ---------------------------
 
-    public BranchController() {
+    private BranchController() {
         branches = new HashMap<>();
         dao = new BranchControllerDao();
     }
 
+    public static BranchController getInstance(){
+        if(instance==null)
+            instance = new BranchController();
+        return instance;
+    }
 //--------------------------- loading from DB -------------------------
 // load only the branches that are needed since a Branch object contains a lot of data
 
