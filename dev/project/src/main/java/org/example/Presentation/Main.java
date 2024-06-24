@@ -9,6 +9,7 @@ import org.example.Business.Employee;
 import org.example.Business.Enums.EmploymentType;
 import org.example.Business.Enums.Role;
 import org.example.Business.Enums.ShiftTime;
+import org.example.Service.SystemService;
 import org.example.Utilities.SmartReader;
 import org.example.Utilities.Trio;
 
@@ -16,8 +17,7 @@ import org.example.Utilities.Trio;
 
 public class Main {
 
-    private static ArrayList<Employee> employees = new ArrayList<Employee>(); // why?
-    private static HashMap<Integer , Branch> branches = new HashMap<Integer , Branch>();
+    //private static ArrayList<Employee> employees = new ArrayList<Employee>(); // why?
 
     private static int loggedInBranchId = -1;
     private static String loggedInUserId = "";
@@ -25,16 +25,13 @@ public class Main {
 
     private static boolean systemOn=true;
 
+    private static SystemService systemService;
+
     public static void main(String[] args) {
+
+        systemService = new SystemService();
         
-        /// create 9 initial managers & branches
-        for(int i = 0; i < 9; i++){
-            Employee employee = Employee.createEmployee("name"+i, ""+i, i, EmploymentType.FULL_TIME, 25000, ""+i);
-            employee.addRole(Role.HR_MANAGER);
-            employees.add(employee);
-            Branch branch = new Branch(employees.get(i));
-            branches.put(i, branch);
-        }
+        systemService.loadBranchIds();
 
         System.out.println("Welcome to The SuperLi system!");
         while(systemOn){
@@ -67,10 +64,11 @@ public class Main {
         while(true){
             System.out.print("Choose a branch to log in to (0-8): ");
             int branchId = reader.readInt();
-            if(branchId < 0 || branchId > 8){
+            if(!systemService.hasBranch(branchId)){
                 System.out.println("Invalid branch id");
             }
             else{
+                systemService.logInBranch(branchId);
                 loggedInBranchId = branchId;
                 System.out.println("Logged in to branch " + branchId);
                 break;
@@ -86,7 +84,7 @@ public class Main {
             System.out.println("Enter password: ");
             String password = reader.readString();
 
-            Employee e = branches.get(loggedInBranchId).logIn(userName, userId, password);
+            Employee e = systemService.logInEmployee(userName, userId, password, loggedInBranchId);
             loggedInUserId = e.getId();
             if(e.isSuitableForRole(Role.HR_MANAGER))
             {
@@ -121,7 +119,7 @@ public class Main {
             System.out.println("12. add/recruit new Employee to Branch");
             System.out.println("13. remove/fire Employee from Branch");
             System.out.println("14. assign new Role to Employee"); //v
-            System.out.println("15. set last date for submitting shifts"); //TODO: add to db
+            System.out.println("15. set last date for submitting shifts"); 
             System.out.println("16. log out"); //nodb
             System.out.println("17. Exit system"); //nodb
     
@@ -273,7 +271,7 @@ public class Main {
             else 
                 throw new IllegalArgumentException("Failed to submit availability, Invalid time input.");
             
-            branches.get(loggedInBranchId).submitAvailability(loggedInUserId, date, time);
+            systemService.submitAvailabilityForShift(loggedInUserId, date, time, loggedInBranchId);
             System.out.println("Availability to "+dateStr+" "+timeStr+" submitted successfully!");
             System.out.println("");
         }
@@ -301,7 +299,7 @@ public class Main {
             else 
                 throw new IllegalArgumentException("Failed to remove availability, Invalid time input.");
             
-            branches.get(loggedInBranchId).deSubmitAvailability(loggedInUserId, date, time);
+            systemService.removeAvailabilityForShift(loggedInUserId, date, time, loggedInBranchId);
             System.out.println("Availability to "+dateStr+" "+timeStr+" removed successfully!");
             System.out.println("");
         }
@@ -320,7 +318,7 @@ public class Main {
             String currentPassword = reader.readString();
             System.out.println("Enter your new password: ");
             String newPassword = reader.readString();
-            branches.get(loggedInBranchId).setEmployeePassword(loggedInUserId, currentPassword, newPassword);
+            systemService.changePassword(loggedInUserId, currentPassword, newPassword, loggedInBranchId);
             System.out.println("Password changed successfully!");
             System.out.println("");
         }
@@ -356,7 +354,7 @@ public class Main {
                 requiredEmployees.put(role, num);
             }
 
-            branches.get(loggedInBranchId).addShift(date, time, requiredEmployees, loggedInUserId);
+            systemService.addShiftToSchedule(date, time, requiredEmployees, loggedInUserId, loggedInBranchId);
             System.out.println("Shift "+dateStr+" "+timeStr+" added successfully!");
             System.out.println("");
         }
@@ -384,7 +382,7 @@ public class Main {
             else 
                 throw new IllegalArgumentException("Failed to remove shift from schedule, Invalid time input.");
             
-            branches.get(loggedInBranchId).removeShift(date, time, loggedInUserId);
+            systemService.removeShiftFromSchedule(date, time, loggedInUserId, loggedInBranchId);
             System.out.println("Shift "+dateStr+" "+timeStr+" removed successfully!");
             System.out.println("");
         }
@@ -418,7 +416,7 @@ public class Main {
             //select role
             Role role = chooseRole();
 
-            branches.get(loggedInBranchId).addEmployeeToShift(employeeId, date, time, role, loggedInUserId);
+            systemService.addEmployeeToShift(employeeId, date, time, role, loggedInUserId, loggedInBranchId);
             System.out.println("Employee "+employeeId+" added to shift "+dateStr+" " +timeStr+ " successfully!");
             System.out.println("");
         }
@@ -452,7 +450,7 @@ public class Main {
             //select role
             Role role = chooseRole();
 
-            branches.get(loggedInBranchId).removeEmployeeFromShift(employeeId, date, time, role, loggedInUserId);
+            systemService.removeEmployeeFromShift(employeeId, date, time, role, loggedInUserId, loggedInBranchId);
             System.out.println("Employee "+employeeId+" removed from shift "+dateStr+" " +timeStr+ " successfully!");
             System.out.println("");
         }
@@ -481,7 +479,7 @@ public class Main {
             else 
                 throw new IllegalArgumentException("Failed to print Employees in shift, Invalid time input.");
             
-            System.out.println(branches.get(loggedInBranchId).getEmployeesForShiftStr(date, time, loggedInUserId));
+            System.out.println(systemService.getEmployeesForShiftStr(date, time, loggedInUserId, loggedInBranchId));
         }
         catch(Exception e)
         {
@@ -508,7 +506,7 @@ public class Main {
             else 
                 throw new IllegalArgumentException("Failed to print required employees for shift, Invalid time input.");
             
-            System.out.println(branches.get(loggedInBranchId).getRequiredEmployeesForShiftStr(date, time, loggedInUserId));
+            System.out.println(systemService.getRequiredEmployeesForShiftStr(date, time, loggedInUserId, loggedInBranchId));
             
         }
         catch(Exception e)
@@ -536,7 +534,7 @@ public class Main {
             else 
                 throw new IllegalArgumentException("Failed to print available employees for shift, Invalid time input.");
             
-            System.out.println(branches.get(loggedInBranchId).getAvailableEmployeesStr(date, time, loggedInUserId));
+            System.out.println(systemService.getAvailableEmployeesForShiftStr(date, time, loggedInUserId, loggedInBranchId));
             
         }
         catch(Exception e)
@@ -564,8 +562,7 @@ public class Main {
             System.out.println("Enter the bank account id of the new employee:");
             String bankAccountId = reader.readString();
 
-            Employee employee = branches.get(loggedInBranchId).addNewEmployee(name, id, loggedInBranchId, employmentType, salary, bankAccountId, loggedInUserId);
-            employees.add(employee);
+            Employee employee = systemService.addNewEmployee(name, id, loggedInBranchId, employmentType, salary, bankAccountId, loggedInUserId);
             System.out.println("Employee "+employee.getName()+" added successfully!");
             System.out.println("");
         }
@@ -580,7 +577,7 @@ public class Main {
             SmartReader reader = new SmartReader();
             System.out.println("Enter the id of the employee you want to remove from the branch: ");
             String employeeId = reader.readString();
-            branches.get(loggedInBranchId).removeEmployee(employeeId, loggedInUserId);
+            systemService.removeEmployee(employeeId, loggedInUserId, loggedInBranchId);
             System.out.println("Employee "+employeeId+" removed successfully!");    
             System.out.println("");
         }
@@ -599,7 +596,7 @@ public class Main {
             String employeeId = reader.readString();
             // select role
             Role role = chooseRole();
-            branches.get(loggedInBranchId).assignRoleToEmployee(employeeId, role, loggedInUserId);
+            systemService.assignRoleToEmployee(employeeId, role, loggedInUserId, loggedInBranchId);
             System.out.println("Role "+role.toString()+" assigned to employee "+employeeId+" successfully!");
             System.out.println("");
         }
@@ -616,7 +613,7 @@ public class Main {
             System.out.println("Enter the last date for submitting shifts (yyyy-mm-dd): ");
             String dateStr = reader.readString();
             LocalDate date = LocalDate.parse(dateStr);
-            branches.get(loggedInBranchId).setLastDateForSubmitting(date, loggedInUserId);
+            systemService.setLastDateForSubmittingAvailability(date, loggedInUserId, loggedInBranchId);
             System.out.println("Last date for submitting shifts set to "+dateStr+" successfully!");
             System.out.println("");
         }
@@ -627,7 +624,7 @@ public class Main {
     }
 
     private static void logOut() {
-        branches.get(loggedInBranchId).logOut(loggedInUserId);
+        systemService.logOutEmployee(loggedInUserId, loggedInBranchId);
         loggedInBranchId = -1;
         loggedInUserId = "";
         isAdmin = false;
@@ -636,7 +633,7 @@ public class Main {
 
     private static void viewMyShifts() {
         try {
-            ArrayList<Trio<LocalDate,ShiftTime,Role>> shifts = branches.get(loggedInBranchId).getShiftsForEmployee(loggedInUserId);
+            ArrayList<Trio<LocalDate,ShiftTime,Role>> shifts = systemService.getShiftsForEmployee(loggedInUserId, loggedInBranchId);
             System.out.println("");
             System.out.println("Your shifts:");
             for(Trio tri : shifts){

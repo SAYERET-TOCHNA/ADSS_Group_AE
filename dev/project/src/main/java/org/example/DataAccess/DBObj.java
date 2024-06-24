@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.example.Business.Branch;
 import org.example.Business.Employee;
 import org.example.Business.Enums.EmploymentType;
 import org.example.Business.Enums.Role;
@@ -37,7 +38,6 @@ public class DBObj {
 
             
     private DBObj(){
-        connectToDB();
         this.employeeTableLock = new Object();
         this.employeeToRoleTableLock = new Object();
         this.shiftsTableLock = new Object();
@@ -56,32 +56,7 @@ public class DBObj {
     }
 // ---------------------------- Connection / Creation ----------------------------
     
-    private void connectToDB() {
-
-        String url = "jdbc:sqlite:" + DB_NAME;
-        // DriverManager will try to connect to the database file. 
-        // If the file does not exist, it will be created.
-        // The database file will be created in the current working directory of your Java application. 
-        // You can specify an absolute or relative path if you want to create the database file in a specific location
-        try (Connection conn = DriverManager.getConnection(url)) {
-            if (conn != null) {
-                System.out.println("A new database has been created.");
-                // TODO: create tables
-                Statement stmt = conn.createStatement();
-                stmt.execute(createEmployeeTableQuery);
-                stmt.execute(createEmployeeToRoleTableQuery);
-                stmt.execute(createShiftsTableQuery);
-                stmt.execute(createShiftAvailabilityTableQuery);
-                stmt.execute(createShiftToEmployeeTableQuery);
-                stmt.execute(createShiftRoleToRequiredTableQuery);
-                stmt.execute(createBranchesTableQuery);
-                // TODO: load with demo data.
-            }
-        } catch (SQLException e) {
-            throw new IllegalArgumentException("failed to create database. "+e.getMessage());
-        }
-        
-    }
+    
 
 // ---------------------------- CRUD Methods ----------------------------
 
@@ -176,20 +151,21 @@ public class DBObj {
     /// register new employee to db
     public void addEmployee(String id, String name, String password, int employmentType, int salary, String bankAccountId, int branchId , LocalDate startDate) {
 
-        String url = "jdbc:sqlite:" + DB_NAME;
+        String url = "jdbc:sqlite:superli.db";
         String query = "INSERT INTO EMPLOYEES (id, name, password, employment_type, salary, bank_account_id, branch_id, startDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     
         try (Connection conn = DriverManager.getConnection(url);
             //using Prepared Statement to prevent SQL Injection
             //(pre-compiles the sql statement)
             PreparedStatement pstmt = conn.prepareStatement(query)) {
+                System.out.println("----------------------------meowmewo------------------------------");
             if (conn != null) {
                 pstmt.setString(1, id);
                 pstmt.setString(2, name);
                 pstmt.setString(3, password);
-                pstmt.setString(4, bankAccountId);
-                pstmt.setInt(5, employmentType);
-                pstmt.setInt(6, salary);
+                pstmt.setInt(4, employmentType);
+                pstmt.setInt(5, salary);
+                pstmt.setString(6, bankAccountId);
                 pstmt.setInt(7, branchId);
                 pstmt.setString(8, startDate.toString());
                 pstmt.executeUpdate();
@@ -458,7 +434,7 @@ public class DBObj {
         return lastDate;
     }
 
-
+    
 
 // --------- Update
 
@@ -594,90 +570,5 @@ public class DBObj {
             throw new IllegalArgumentException("Failed to remove employee from DB: " + e.getMessage());
         }
     }
-
-
-
-
-
-
-
-
-
     
-    
-    
-
-
-
-    // ---------------------------- Table Creation Queries ----------------------------
-
-    private static final String createEmployeeTableQuery = "CREATE TABLE IF NOT EXISTS EMPLOYEES (\n"
-    + "	id text PRIMARY KEY,\n"
-    + "	name text NOT NULL,\n"
-    + "	password text NOT NULL,\n"
-    + "	employment_type integer NOT NULL,\n"
-    + "	salary integer NOT NULL,\n"
-    + "	bank_account_id text NOT NULL\n"
-    + " branch_id integer NOT NULL,\n"
-    + " startDate text NOT NULL,\n"
-    + " FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE\n"
-    + ");";
-
-    private static final String createEmployeeToRoleTableQuery = "CREATE TABLE IF NOT EXISTS EMPLOYEE_TO_ROLE (\n"
-    + "	employee_id text NOT NULL,\n"
-    + "	role integer NOT NULL,\n"
-    + "	FOREIGN KEY(employee_id) REFERENCES EMPLOYEES(id) ON DELETE CASCADE\n"
-    + " PRIMARY KEY (employee_id, role)\n"
-    + ");";
-
-    static final String createShiftsTableQuery = "CREATE TABLE IF NOT EXISTS SHIFTS (\n"
-    + " shift_date text NOT NULL,\n"
-    + " shift_time integer NOT NULL,\n"
-    + " branch_id integer NOT NULL,\n"
-    + " FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE,\n"
-    + " primary key (shift_date, shift_time, branch_id)\n"
-    + ");";
-
-    private static final String createShiftAvailabilityTableQuery = "CREATE TABLE IF NOT EXISTS SHIFT_AVAILABILITY (\n"
-    + "	employee_id text NOT NULL,\n"
-    + "	shift_date text NOT NULL,\n"
-    + "	shift_time integer NOT NULL,\n"
-    + " branch_id integer NOT NULL,\n"
-    + " FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE,\n"
-    + "	FOREIGN KEY(employee_id) REFERENCES EMPLOYEES(id) ON DELETE CASCADE,\n"
-    + "	FOREIGN KEY(shift_date, shift_time, branch_id) REFERENCES SHIFTS(shift_date, shift_time, branch_id) ON DELETE CASCADE,\n"
-    + " PRIMARY KEY (employee_id, shift_date, shift_time)\n"
-    + ");";
-
-    private static final String createShiftToEmployeeTableQuery = "CREATE TABLE IF NOT EXISTS SHIFT_TO_EMPLOYEE (\n"
-    + "	employee_id text NOT NULL,\n"
-    + "	shift_date text NOT NULL,\n"
-    + "	shift_time integer NOT NULL,\n"
-    + " branch_id integer NOT NULL,\n"
-    + "	role integer NOT NULL,\n"
-    + "	FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE,\n"
-    + "	FOREIGN KEY(employee_id) REFERENCES EMPLOYEES(id) ON DELETE CASCADE,\n"
-    + "	FOREIGN KEY(shift_date, shift_time, branch_id) REFERENCES SHIFTS(shift_date, shift_time, branch_id) ON DELETE CASCADE,\n"
-    + " PRIMARY KEY (employee_id, shift_date, shift_time)\n"
-    + ");";
-
-    private static final String createShiftRoleToRequiredTableQuery = "CREATE TABLE IF NOT EXISTS SHIFT_ROLE_TO_REQUIRED (\n"
-    + "	shift_date text NOT NULL,\n"
-    + "	shift_time integer NOT NULL,\n"
-    + " branch_id integer NOT NULL,\n"
-    + "	role integer NOT NULL,\n"
-    + "	required integer NOT NULL,\n"
-    + "	FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE,\n"
-    + "	FOREIGN KEY(shift_date, shift_time, branch_id) REFERENCES SHIFTS(shift_date, shift_time, branch_id) ON DELETE CASCADE,\n"
-    + " PRIMARY KEY (shift_date, shift_time, branch_id, role)\n"
-    + ");";
-
-
-    private static final String createBranchesTableQuery = "CREATE TABLE IF NOT EXISTS BRANCHES (\n"
-    + "	id integer PRIMARY KEY,\n"
-    + " hr_manager_id text NOT NULL,\n"
-    + " last_date_for_submitting_availability text NOT NULL,\n"
-    + " FOREIGN KEY(hr_manager_id) REFERENCES EMPLOYEES(id)\n"
-    + ");";
-
 }

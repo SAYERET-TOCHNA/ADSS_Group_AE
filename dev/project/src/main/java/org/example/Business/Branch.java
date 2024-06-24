@@ -34,7 +34,7 @@ public class Branch {
         Branch.NextBranchId ++;
     }
 
-    public Branch loadBranchFromDB(int branchId){
+    public static Branch loadBranchFromDB(int branchId){
         return new Branch(branchId);
     }
 
@@ -153,7 +153,7 @@ public class Branch {
     }
 
     /// used by employee to deSubmit availability for a shift
-    public void deSubmitAvailability(String eId, LocalDate date, ShiftTime time)
+    public void removeAvailability(String eId, LocalDate date, ShiftTime time)
     {
         if(!employeeController.hasEmlpoyee(eId))
             throw new IllegalArgumentException("failed to submit availability, employee " + eId + " is not in the system.");
@@ -264,7 +264,7 @@ public class Branch {
     }
     
     /// get all available employees for a shift
-    public String getAvailableEmployeesStr(LocalDate date, ShiftTime time, String requestingUserId)
+    public String getAvailableEmployeesForShiftStr(LocalDate date, ShiftTime time, String requestingUserId)
     {
 
         if(!isEmployeeLoggedIn(requestingUserId))
@@ -287,6 +287,10 @@ public class Branch {
         if(!isEmployeeLoggedIn(eId))
             throw new IllegalArgumentException("user " + eId + " is not logged in.");
         return employeeController.getShifts(eId);
+    }
+
+    public ArrayList<String> getLoggedInEmployees(){
+        return loggedInUserIds;
     }
 
 
