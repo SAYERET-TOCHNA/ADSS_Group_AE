@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.example.Business.Branch;
@@ -276,12 +277,33 @@ public class DBObj {
                                                 rs.getString("password"), rs.getInt("salary"), 
                                                 rs.getString("bank_account_id"), 
                                                 LocalDate.parse(rs.getString("startDate")), 
-                                                this.loadShiftsForEmployee(id));
+                                                this.loadShiftsForEmployee(id),
+                                                this.loadRolesForEmployee(id));
             }
         } catch (SQLException e) {
             throw new IllegalArgumentException("Failed to load employee data: " + e.getMessage());
         }
         return employee;
+    }
+
+    public EnumSet<Role> loadRolesForEmployee(String id){
+        String url = "jdbc:sqlite:" + DB_NAME;
+        String query = "SELECT * FROM EMPLOYEE_TO_ROLE WHERE employee_id = ?";
+        EnumSet<Role> roles = EnumSet.noneOf(Role.class);
+    
+        try (Connection conn = DriverManager.getConnection(url);
+            PreparedStatement pstmt = conn.prepareStatement(query)) {
+            if (conn != null) {
+                pstmt.setString(1, id);
+                ResultSet rs = pstmt.executeQuery();
+                while (rs.next()) {
+                    roles.add(Role.values()[rs.getInt("role")]);
+                }
+            }
+        } catch (SQLException e) {
+            throw new IllegalArgumentException("Failed to load employee data: " + e.getMessage());
+        }
+        return roles;
     }
 
     public ArrayList<Trio<LocalDate, ShiftTime, Role>> loadShiftsForEmployee(String id){

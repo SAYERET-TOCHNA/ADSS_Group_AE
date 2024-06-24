@@ -50,16 +50,16 @@ public class Employee {
 
     //------------------- loading from db -------------------
 
-    public static Employee loadEmployee(String name, String id, int branchId, EmploymentType employmentType, String password, int salary, String bankAccountId, LocalDate startDate, ArrayList<Trio<LocalDate , ShiftTime, Role>> shifts){
+    public static Employee loadEmployee(String name, String id, int branchId, EmploymentType employmentType, String password, int salary, String bankAccountId, LocalDate startDate, ArrayList<Trio<LocalDate , ShiftTime, Role>> shifts, EnumSet<Role> roles){
         if(isLegalId(id) && isLegalId(bankAccountId) && salary >= 0){
-            return new Employee(name, id, branchId, employmentType, password, salary, bankAccountId, startDate, shifts);
+            return new Employee(name, id, branchId, employmentType, password, salary, bankAccountId, startDate, shifts, roles);
         }
         else{
             throw new IllegalArgumentException("Illegal Employee id, bank account id or salary when loading from db!! for id: " + id);
         }
     }
 
-    private Employee(String name, String id, int branchId, EmploymentType employmentType, String password, int salary, String bankAccountId, LocalDate startDate, ArrayList<Trio<LocalDate , ShiftTime, Role>> shifts){
+    private Employee(String name, String id, int branchId, EmploymentType employmentType, String password, int salary, String bankAccountId, LocalDate startDate, ArrayList<Trio<LocalDate , ShiftTime, Role>> shifts, EnumSet<Role> roles){
         this.name = name;
         this.id = id;
         this.password = password;
@@ -70,6 +70,7 @@ public class Employee {
         this.bankAccountId = bankAccountId;
         this.startDate = startDate;
         this.shifts = shifts;
+        this.roles=roles;
     }
     //------------------- getter & setters -------------------
 
