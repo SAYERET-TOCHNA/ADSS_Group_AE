@@ -49,9 +49,9 @@ public class Shift {
         if( date.isBefore(LocalDate.now()))
             throw new IllegalArgumentException("Shift date must not be in the past. given date: " + date.toString()+ " current date: " + LocalDate.now().toString());
         // checks condition hasDelivey --> hasWareHouseWorker
-        if(hasDelivery && !requiredEmployees.containsKey(Role.WAREHOUSE) || requiredEmployees.get(Role.WAREHOUSE) <= 0)
+        if(hasDelivery && (!requiredEmployees.containsKey(Role.WAREHOUSE) || requiredEmployees.get(Role.WAREHOUSE) <= 0))
             throw new IllegalArgumentException("Shift must have a warehouse worker if it has a delivery.");
-        if(hasDelivery && !requiredEmployees.containsKey(Role.DRIVER) || requiredEmployees.get(Role.DRIVER) <= 0)
+        if(hasDelivery && (!requiredEmployees.containsKey(Role.DRIVER) || requiredEmployees.get(Role.DRIVER) <= 0))
             throw new IllegalArgumentException("Shift must have a driver if it has a delivery.");
 
         return new Shift(date, shiftTime, branchId, hasDelivery, requiredEmployees);
