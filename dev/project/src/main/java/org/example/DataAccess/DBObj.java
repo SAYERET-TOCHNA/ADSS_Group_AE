@@ -381,6 +381,7 @@ public class DBObj {
                 pstmt.setInt(3, branchId);
                 ResultSet rs = pstmt.executeQuery();
                 while (rs.next()) {
+                    System.out.println(rs.getInt("role") + " " + rs.getInt("required"));
                     requiredEmployees.put(Role.values()[rs.getInt("role")], rs.getInt("required"));
                 }
             }

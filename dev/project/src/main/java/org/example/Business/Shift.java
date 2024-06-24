@@ -82,7 +82,7 @@ public class Shift {
 
     public void addEmployee(String id , Role role){//v
 
-        if(!employees.containsKey(role)) 
+        if(!requiredEmployees.containsKey(role)) 
             throw new IllegalArgumentException("shift" + date.toString() + " " + shiftTime.toString() + " does not require employees of role: " + role.toString());
 
         if(requiredEmployees.get(role) == 0 )
@@ -93,7 +93,9 @@ public class Shift {
                 if(eId.equals(id))
                     throw new IllegalArgumentException("Employee " + id + " is already assigned to shift" + date.toString() + " " + shiftTime.toString() + " as " + r.toString());
 
-                    employees.get(role).add(id);
+        if(!employees.containsKey(role))
+            employees.put(role, new ArrayList<String>());
+        employees.get(role).add(id);
         requiredEmployees.put(role, requiredEmployees.get(role) - 1);
     }
 

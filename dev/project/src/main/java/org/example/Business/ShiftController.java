@@ -70,6 +70,7 @@ public class ShiftController {
             }
 
         }
+        this.dao.addShift(date, shiftTime, requiredEmployees);
     }
 
     public void removeShift(LocalDate date , ShiftTime time){ 
