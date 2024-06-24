@@ -1,7 +1,5 @@
 package org.example.Service;
 
-//manage branches and system actions and data loading
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -14,7 +12,6 @@ import org.example.Business.Enums.ShiftTime;
 import org.example.Utilities.Trio;
 
 // static service class (API)
-// for next part should do Json?
 public class SystemService {
 
     private static BranchController branchController = BranchController.getInstance() ;

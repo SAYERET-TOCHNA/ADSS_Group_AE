@@ -80,7 +80,6 @@ public class DBObj {
                 pstmt.setInt(3, shiftTime.ordinal());
                 pstmt.setInt(4, branchId);
                 pstmt.executeUpdate();
-                System.out.println("LOG: Employee "+employeeId+" availability to "+shiftDate+" submitted successfully.");
             }
         } catch (SQLException e) {
             throw new IllegalArgumentException("Failed to submit availability to DB: " + e.getMessage());
@@ -102,7 +101,7 @@ public class DBObj {
                 pstmtShift.setInt(2, shiftTime.ordinal());
                 pstmtShift.setInt(3, branchId);
                 pstmtShift.executeUpdate();
-                System.out.println("LOG: Shift "+shiftDate+" "+shiftTime+" added successfully.");
+                
                 // add required employees for each role
                 for(Role role : requiredEmployees.keySet())
                 {
@@ -112,7 +111,7 @@ public class DBObj {
                     pstmtShiftRoleToRequired.setInt(4, role.ordinal());
                     pstmtShiftRoleToRequired.setInt(5, requiredEmployees.get(role));
                     pstmtShiftRoleToRequired.executeUpdate();
-                    System.out.println("DBLOG: Shift "+shiftDate+" "+shiftTime+" requires "+requiredEmployees.get(role)+" employees of role "+role.toString());
+                    
                 }
             }
         } catch (SQLException e) {
@@ -136,13 +135,13 @@ public class DBObj {
                 pstmt1.setInt(4, branchId);
                 pstmt1.setInt(5, role.ordinal());
                 pstmt1.executeUpdate();
-                System.out.println("LOG: Employee "+employeeId+" assigned to shift "+shiftDate+" "+shiftTime+" as "+role.toString());
+                //System.out.println("LOG: Employee "+employeeId+" assigned to shift "+shiftDate+" "+shiftTime+" as "+role.toString());
                 pstmt2.setString(1, shiftDate.toString());
                 pstmt2.setInt(2, shiftTime.ordinal());
                 pstmt2.setInt(3, branchId);
                 pstmt2.setInt(4, role.ordinal());
                 pstmt2.executeUpdate();
-                System.out.println("LOG: Required employees for shift "+shiftDate+" "+shiftTime+" as "+role.toString()+" updated.");
+                //System.out.println("LOG: Required employees for shift "+shiftDate+" "+shiftTime+" as "+role.toString()+" updated.");
             }
         } catch (SQLException e) {
             throw new IllegalArgumentException("Failed to assign employee to shift: " + e.getMessage());
@@ -159,7 +158,6 @@ public class DBObj {
             //using Prepared Statement to prevent SQL Injection
             //(pre-compiles the sql statement)
             PreparedStatement pstmt = conn.prepareStatement(query)) {
-                System.out.println("----------------------------meowmewo------------------------------");
             if (conn != null) {
                 pstmt.setString(1, id);
                 pstmt.setString(2, name);
@@ -170,7 +168,7 @@ public class DBObj {
                 pstmt.setInt(7, branchId);
                 pstmt.setString(8, startDate.toString());
                 pstmt.executeUpdate();
-                System.out.println("LOG: Employee "+id+" added successfully.");
+                //System.out.println("LOG: Employee "+id+" added successfully.");
             }
         } catch (SQLException e) {
             throw new IllegalArgumentException("Failed to add employee to DB: " + e.getMessage());
@@ -189,7 +187,7 @@ public class DBObj {
                 pstmt.setString(1, id);
                 pstmt.setInt(2, role.ordinal());
                 pstmt.executeUpdate();
-                System.out.println("LOG: Employee "+id+" assigned new role "+role.toString());
+                //System.out.println("LOG: Employee "+id+" assigned new role "+role.toString());
             }
         } catch (SQLException e) {
             throw new IllegalArgumentException("Failed to assign new role to employee: " + e.getMessage());
@@ -381,7 +379,7 @@ public class DBObj {
                 pstmt.setInt(3, branchId);
                 ResultSet rs = pstmt.executeQuery();
                 while (rs.next()) {
-                    System.out.println(rs.getInt("role") + " " + rs.getInt("required"));
+                    //System.out.println(rs.getInt("role") + " " + rs.getInt("required"));
                     requiredEmployees.put(Role.values()[rs.getInt("role")], rs.getInt("required"));
                 }
             }
@@ -472,7 +470,6 @@ public class DBObj {
                 pstmt.setString(1, newPassword);
                 pstmt.setString(2, id);
                 pstmt.executeUpdate();
-                System.out.println("LOG: Employee "+id+" password changed successfully.");
             }
         } catch (SQLException e) {
             throw new IllegalArgumentException("Failed to remove employee from DB: " + e.getMessage());
@@ -491,7 +488,6 @@ public class DBObj {
                 pstmt.setString(1, date.toString());
                 pstmt.setInt(2, branchId);
                 pstmt.executeUpdate();
-                System.out.println("LOG: Last date for submitting shifts for branch "+branchId+" set to "+date);
             }
         } catch (SQLException e) {
             throw new IllegalArgumentException("Failed to set last date for submitting shifts: " + e.getMessage());
@@ -516,7 +512,6 @@ public class DBObj {
                 pstmt.setInt(3, shiftTime.ordinal());
                 pstmt.setInt(4, branchId);
                 pstmt.executeUpdate();
-                System.out.println("LOG: Employee "+employeeId+" availability to "+shiftDate+" removed successfully.");
             }
         } catch (SQLException e) {
             throw new IllegalArgumentException("Failed to remove availability from DB: " + e.getMessage());
@@ -539,7 +534,6 @@ public class DBObj {
                 // SHIFT_AVAILABILITY has ON DELETE CASCADE
                 // SHIFT_ROLE_TO_REQUIRED has ON DELETE CASCADE
                 // SHIFT_TO_EMPLOYEE has ON DELETE CASCADE
-                System.out.println("LOG: Shift "+shiftDate+" "+shiftTime+" removed successfully from db.");
             }
         } catch (SQLException e) {
             throw new IllegalArgumentException("Failed to remove shift from DB: " + e.getMessage());
@@ -561,13 +555,11 @@ public class DBObj {
                 pstmt1.setInt(3, shiftTime.ordinal());
                 pstmt1.setInt(4, branchId);
                 pstmt1.executeUpdate();
-                System.out.println("LOG: Employee "+employeeId+" removed from shift "+shiftDate+" "+shiftTime);
                 pstmt2.setString(1, shiftDate.toString());
                 pstmt2.setInt(2, shiftTime.ordinal());
                 pstmt2.setInt(3, branchId);
                 pstmt2.setInt(4, role.ordinal());
                 pstmt2.executeUpdate();
-                System.out.println("LOG: Required employees for shift "+shiftDate+" "+shiftTime+" as "+role.toString()+" updated.");
             }
         } catch (SQLException e) {
             throw new IllegalArgumentException("Failed to remove employee from shift: " + e.getMessage());
@@ -587,7 +579,6 @@ public class DBObj {
                 // EMPLOYEE_TO_ROLE has ON DELETE CASCADE
                 // SHIFT_AVAILABILITY has ON DELETE CASCADE
                 // SHIFT_TO_EMPLOYEE has ON DELETE CASCADE
-                System.out.println("LOG: Employee "+id+" removed successfully from db.");
             }
         } catch (SQLException e) {
             throw new IllegalArgumentException("Failed to remove employee from DB: " + e.getMessage());
