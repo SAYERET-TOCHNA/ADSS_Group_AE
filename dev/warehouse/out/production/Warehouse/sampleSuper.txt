@@ -1,0 +1,31 @@
+Apple, 10.5, 15.0, Fruit|Fresh|Small, FreshFarms, 5, D1, S1
+Banana, 8.0, 12.0, Fruit|Fresh|Medium, TropicFruits, 3, D2, S2
+Carrot, 7.5, 10.0, Vegetable|Root|Small, HealthyVeg, 2, D3, S3
+Detergent, 5.5, 9.0, Household|Cleaning|Large, CleanCo, 6, D4, S4
+Shampoo, 12.0, 18.0, PersonalCare|Hair|Medium, HairPlus, 4, D5, S5
+Milk, 2.5, 4.0, Dairy|Fresh|Large, DailyDairy, 8, D6, S6
+Apple, 101, 01/05/2023, true
+Banana, 102, 31/05/2024, false
+Carrot, 103, 01/06/2022, true
+Detergent, 104, 15/08/2023, true
+Shampoo, 105, 20/11/2024, false
+Milk, 106, 01/01/2024, true
+01/06/2024, 31/12/2024, Fruit|Fresh|Small'Vegetable|Root|Small, 0.2, true, Apple|Carrot
+01/06/2024, 31/07/2024, Household|Cleaning|Large'PersonalCare|Hair|Medium, 0.15, false, Detergent|Shampoo
+01/06/2024, 31/08/2024, Dairy|Fresh|Large'Fruit|Fresh|Medium, 0.1, true, Milk|Banana
+Invalid, data, line
+Orange, 9.0, 14.0, Fruit|Citrus|Medium, CitrusWorld, 5, D7, S7
+Tomato, 6.0, 9.0, Vegetable|Fresh|Small, GreenThumb, 4, D8, S8
+Cereal, 3.5, 6.0, Grocery|Breakfast|Packaged, GrainHouse, 7, D9, S9
+Soap, 4.0, 6.5, PersonalCare|Skin|Medium, PureEssence, 6, D1, S1
+Cheese, 8.5, 12.0, Dairy|Fresh|Small, DairyDelight, 5, D1, S1
+Juice, 5.0, 8.0, Beverage|Fresh|Large, JuiceVille, 7, D1, S1
+Orange, 107, 15/02/2024, true
+Tomato, 108, 22/03/2024, false
+Cereal, 109, 30/04/2023, true
+Soap, 110, 12/05/2024, false
+Cheese, 111, 25/06/2024, true
+Juice, 112, 03/07/2023, false
+15/07/2024, 31/12/2024, Fruit|Citrus|Medium'Beverage|Fresh|Large, 0.25, true, Orange|Juice
+01/08/2024, 31/10/2024, Vegetable|Fresh|Small'PersonalCare|Skin|Medium, 0.2, false, Tomato|Soap
+15/09/2024, 31/12/2024, Grocery|Breakfast|Packaged'Dairy|Fresh|Small, 0.18, true, Cereal|Cheese|NonExistentProduct
