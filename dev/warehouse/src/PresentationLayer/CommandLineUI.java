@@ -1,89 +1,42 @@
 package PresentationLayer;
 
-import DomainLayer.BuisnessManager;
+import DomainLayer.InventoryFacade;
+import DomainLayer.CallBack;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.io.IOException;
 
 public class CommandLineUI {
     private final Scanner scanner = new Scanner(System.in);
-    private final BuisnessManager manager;
+    private final InventoryFacade manager;
+
+    private CallBack callBack = new CallBack() {
+        @Override
+        public void call(String msg) {
+            System.out.println(msg);
+        }
+    };
 
 
-
-    public CommandLineUI(String data) {
-        manager = new BuisnessManager();
-        System.out.println(manager.init(data));
-    }
 
     public CommandLineUI() {
-        manager = new BuisnessManager();
+        manager = new InventoryFacade(callBack);
         System.out.println(manager.init());
     }
 
     public static void main(String[] args) {
-        CommandLineUI ui = null;
-        if (args.length > 0) {
-            List<String> lines = null;
-            try {
-                // Read all lines from the file
-                lines = Files.readAllLines(Paths.get(args[0]));
-            } catch (IOException e) {
-                System.out.println("Error reading data from path: " + args[0]);
-                e.printStackTrace();
-            }
-            if (lines != null) {
-                // Join the lines into a single string if CommandLineUI expects a single string
-                String data = String.join(System.lineSeparator(), lines);
-                ui = new CommandLineUI(data);
-            }
-        }
-        if (ui == null){
-            ui = new CommandLineUI("Apple, 10.5, 15.0, Fruit|Fresh|Small, FreshFarms, 5, D1, S1\n" +
-                    "Banana, 8.0, 12.0, Fruit|Fresh|Medium, TropicFruits, 3, D2, S2\n" +
-                    "Carrot, 7.5, 10.0, Vegetable|Root|Small, HealthyVeg, 2, D3, S3\n" +
-                    "Detergent, 5.5, 9.0, Household|Cleaning|Large, CleanCo, 6, D4, S4\n" +
-                    "Shampoo, 12.0, 18.0, PersonalCare|Hair|Medium, HairPlus, 4, D5, S5\n" +
-                    "Milk, 2.5, 4.0, Dairy|Fresh|Large, DailyDairy, 8, D6, S6\n" +
-                    "Apple, 101, 01/05/2023, true\n" +
-                    "Banana, 102, 31/05/2024, false\n" +
-                    "Carrot, 103, 01/06/2022, true\n" +
-                    "Detergent, 104, 15/08/2023, true\n" +
-                    "Shampoo, 105, 20/11/2024, false\n" +
-                    "Milk, 106, 01/01/2024, true\n" +
-                    "01/06/2024, 31/12/2024, Fruit|Fresh|Small'Vegetable|Root|Small, 0.2, true, Apple|Carrot\n" +
-                    "01/06/2024, 31/07/2024, Household|Cleaning|Large'PersonalCare|Hair|Medium, 0.15, false, Detergent|Shampoo\n" +
-                    "01/06/2024, 31/08/2024, Dairy|Fresh|Large'Fruit|Fresh|Medium, 0.1, true, Milk|Banana\n" +
-                    "Invalid, data, line\n" +
-                    "Orange, 9.0, 14.0, Fruit|Citrus|Medium, CitrusWorld, 5, D7, S7\n" +
-                    "Tomato, 6.0, 9.0, Vegetable|Fresh|Small, GreenThumb, 4, D8, S8\n" +
-                    "Cereal, 3.5, 6.0, Grocery|Breakfast|Packaged, GrainHouse, 7, D9, S9\n" +
-                    "Soap, 4.0, 6.5, PersonalCare|Skin|Medium, PureEssence, 6, D1, S1\n" +
-                    "Cheese, 8.5, 12.0, Dairy|Fresh|Small, DairyDelight, 5, D1, S1\n" +
-                    "Juice, 5.0, 8.0, Beverage|Fresh|Large, JuiceVille, 7, D1, S1\n" +
-                    "Orange, 107, 15/02/2024, true\n" +
-                    "Tomato, 108, 22/03/2024, false\n" +
-                    "Cereal, 109, 30/04/2023, true\n" +
-                    "Soap, 110, 12/05/2024, false\n" +
-                    "Cheese, 111, 25/06/2024, true\n" +
-                    "Juice, 112, 03/07/2023, false\n" +
-                    "15/07/2024, 31/12/2024, Fruit|Citrus|Medium'Beverage|Fresh|Large, 0.25, true, Orange|Juice\n" +
-                    "01/08/2024, 31/10/2024, Vegetable|Fresh|Small'PersonalCare|Skin|Medium, 0.2, false, Tomato|Soap\n" +
-                    "15/09/2024, 31/12/2024, Grocery|Breakfast|Packaged'Dairy|Fresh|Small, 0.18, true, Cereal|Cheese|NonExistentProduct\n");
-        }
+        CommandLineUI ui = new CommandLineUI();
+
 
         while (true) {
-            ui.showMenu();
-            int choice = ui.getChoice();
-            ui.handleChoice(choice);
+            ui.showMainMenu();
+            int mainChoice = ui.getChoice();
+            ui.handleMainChoice(mainChoice);
         }
     }
 
-    private void showMenu() {
+    private void showMainMenu() {
         // ANSI escape codes for different rainbow colors
         final String RESET = "\u001B[0m";
         final String[] RAINBOW_COLORS = {
@@ -98,39 +51,43 @@ public class CommandLineUI {
 
         System.out.println(RAINBOW_COLORS[3] + "\n=== Inventory Management System ===" + RESET);
 
-        String[] menuOptions = {
-                "1. Load Data",
-                "2. Add Product",
-                "3. Add Item",
-                "4. Add Discount",
-                "5. Get Report By Category",
-                "6. Get Report Almost Missing",
-                "7. Get Report Bad Products",
-                "8. Change Product Buying Cost",
-                "9. Change Product Selling Cost",
-                "10. Change Product Categories",
-                "11. Get Item Cost",
-                "12. Get Product Cost",
-                "13. Notify Item Bought",
-                "14. Get Item Supplier Cost",
-                "15. Get Product Supplier Cost",
-                "16. Remove Discount",
-                "17. Show Discounts",
-                "18. Remove Product",
-                "19. Notify Damaged Item",
-                "20. Move Item From Warehouse",
-                "21. Move Item To Warehouse",
-                "22. Get Item Location",
-                "23. Get product Location",
-                "24. Exit"
+        String[] mainMenuOptions = {
+                "1. Products",
+                "2. Items",
+                "3. Discounts",
+                "4. Orders",
+                "5. Reports",
+                "6. Delete Everything",
+                "7. Exit"
         };
 
-        // Print colored menu options
-        for (int i = 0; i < menuOptions.length; i++) {
-            String color = i == 0 || i == menuOptions.length - 1 ? RAINBOW_COLORS[0] : RAINBOW_COLORS[i % RAINBOW_COLORS.length];
-            System.out.println(color + menuOptions[i].substring(0, 3) + RESET + menuOptions[i].substring(3));
+        // Print colored main menu options
+        for (int i = 0; i < mainMenuOptions.length; i++) {
+            String color = i == 0 || i == mainMenuOptions.length - 1 ? RAINBOW_COLORS[0] : RAINBOW_COLORS[i % RAINBOW_COLORS.length];
+            System.out.println(color + mainMenuOptions[i].substring(0, 3) + RESET + mainMenuOptions[i].substring(3));
         }
-        System.out.print( "Enter your choice: ");
+        System.out.print("Enter your choice: ");
+    }
+
+    private void showSubMenu(String[] subMenuOptions) {
+        // ANSI escape codes for different rainbow colors
+        final String RESET = "\u001B[0m";
+        final String[] RAINBOW_COLORS = {
+                "\u001B[38;2;255;0;0m",     // Red
+                "\u001B[38;2;255;127;0m",   // Orange
+                "\u001B[38;2;255;255;0m",   // Yellow
+                "\u001B[38;2;0;255;0m",     // Green
+                "\u001B[38;2;0;0;255m",     // Blue
+                "\u001B[38;2;75;0;130m",    // Indigo
+                "\u001B[38;2;148;0;211m"    // Violet
+        };
+
+        // Print colored sub-menu options
+        for (int i = 0; i < subMenuOptions.length; i++) {
+            String color = i == 0 || i == subMenuOptions.length - 1 ? RAINBOW_COLORS[0] : RAINBOW_COLORS[i % RAINBOW_COLORS.length];
+            System.out.println(color + subMenuOptions[i].substring(0, 3) + RESET + subMenuOptions[i].substring(3));
+        }
+        System.out.print("Enter your choice: ");
     }
 
     private int getChoice() {
@@ -138,40 +95,165 @@ public class CommandLineUI {
             try {
                 return Integer.parseInt(scanner.nextLine());
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a number between 1 and 24.");
+                System.out.println("Invalid input. Please enter a number.");
                 System.out.print("Enter your choice: ");
             }
         }
     }
 
-    private void handleChoice(int choice) {
+    private void handleMainChoice(int choice) {
         switch (choice) {
-            case 1 -> loadData();
-            case 2 -> addProduct();
-            case 3 -> addItem();
-            case 4 -> addDiscount();
-            case 5 -> getReportByCategory();
-            case 6 -> getReportAlmostMissing();
-            case 7 -> getReportBadProducts();
-            case 8 -> changeProductBuyingCost();
-            case 9 -> changeProductSellingCost();
-            case 10 -> changeProductCategories();
-            case 11 -> getItemCost();
-            case 12 -> getProductCost();
-            case 13 -> notifyItemBought();
-            case 14 -> getItemSupplierCost();
-            case 15 -> getProductSupplierCost();
-            case 16 -> removeDiscount();
-            case 17 -> showDiscounts();
-            case 18 -> removeProduct();
-            case 19 -> notifyDamagedItem();
-            case 20 -> moveItemFromWarehouse();
-            case 21 -> moveItemToWarehouse();
-            case 22 -> getItemLocation();
-            case 23 -> getProductLocation();
-            case 24 -> exit();
+            case 1 -> handleProducts();
+            case 2 -> handleItems();
+            case 3 -> handleDiscounts();
+            case 4 -> handleOrders();
+            case 5 -> handleReports();
+            case 6 -> handleDeleteEverything();
+            case 7 -> exit();
             default -> System.out.println("Invalid choice. Please try again.");
         }
+    }
+
+    private void handleDeleteEverything() {
+        System.out.println("WARNING!!! you are about to delete all the database \ntype 'delete' to confirm");
+        String confirm = scanner.nextLine();
+        if(confirm.equals("delete")){
+            System.out.println(manager.deleteAllFromDB());
+        }
+        else System.out.println("Understood, data deletion was canceled");
+    }
+
+    private void handleProducts() {
+        String[] productMenuOptions = {
+                "1. Add Product",
+                "2. Change Product Buying Cost",
+                "3. Change Product Selling Cost",
+                "4. Change Product Categories",
+                "5. Get Product Cost",
+                "6. Get Product Supplier Cost",
+                "7. Remove Product",
+                "8. Get Product Location",
+                "9. Back to Main Menu"
+        };
+        while (true) {
+            showSubMenu(productMenuOptions);
+            int choice = getChoice();
+            switch (choice) {
+                case 1 -> addProduct();
+                case 2 -> changeProductBuyingCost();
+                case 3 -> changeProductSellingCost();
+                case 4 -> changeProductCategories();
+                case 5 -> getProductCost();
+                case 6 -> getProductSupplierCost();
+                case 7 -> removeProduct();
+                case 8 -> getProductLocation();
+                case 9 -> { return; }
+                default -> System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private void handleItems() {
+        String[] itemMenuOptions = {
+                "1. Add Item",
+                "2. Notify Item Bought",
+                "3. Notify Damaged Item",
+                "4. Move Item From Warehouse",
+                "5. Move Item To Warehouse",
+                "6. Get Item Product Name",
+                "7. Back to Main Menu"
+        };
+        while (true) {
+            showSubMenu(itemMenuOptions);
+            int choice = getChoice();
+            switch (choice) {
+                case 1 -> addItem();
+                case 2 -> notifyItemBought();
+                case 3 -> notifyDamagedItem();
+                case 4 -> moveItemFromWarehouse();
+                case 5 -> moveItemToWarehouse();
+                case 6 -> getItemProductName();
+                case 7 -> { return; }
+                default -> System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private void handleDiscounts() {
+        String[] discountMenuOptions = {
+                "1. Add Discount",
+                "2. Remove Discount",
+                "3. Show Discounts",
+                "4. Back to Main Menu"
+        };
+        while (true) {
+            showSubMenu(discountMenuOptions);
+            int choice = getChoice();
+            switch (choice) {
+                case 1 -> addDiscount();
+                case 2 -> removeDiscount();
+                case 3 -> showDiscounts();
+                case 4 -> { return; }
+                default -> System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private void handleOrders() {
+        String[] orderMenuOptions = {
+                "1. Add an Occasional Order",
+                "2. Show Orders",
+                "3. Remove Order",
+                "4. Update Order",
+                "5. Back to Main Menu"
+        };
+        while (true) {
+            showSubMenu(orderMenuOptions);
+            int choice = getChoice();
+            switch (choice) {
+                case 1 -> addAnOccasionalOrder();
+                case 2 -> showOrders();
+                case 3 -> removeOrder();
+                case 4 -> updateOrder();
+                case 5 -> { return; }
+                default -> System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private void handleReports() {
+        String[] reportMenuOptions = {
+                "1. Get Report By Category",
+                "2. Get Report Almost Missing",
+                "3. Get Report Bad Products",
+                "4. Back to Main Menu"
+        };
+        while (true) {
+            showSubMenu(reportMenuOptions);
+            int choice = getChoice();
+            switch (choice) {
+
+                case 1 -> getReportByCategory();
+                case 2 -> getReportAlmostMissing();
+                case 3 -> getReportBadProducts();
+                case 4 -> { return; }
+                default -> System.out.println("Invalid choice. Please try again.");
+            }
+        }
+    }
+
+    private void getItemProductName() {
+        int itemId = getIntInput("Enter ItemId: ");
+        System.out.println(manager.getItemProductName(itemId));
+    }
+
+    private void addAnOccasionalOrder() {
+        System.out.print("Enter product name: ");
+        String name = scanner.nextLine();
+        int amount = getIntInput("Enter amount in order: ");
+        int dayOfMonth = getIntInput("Enter day of month: (between one and 28)");
+
+        System.out.println(manager.addOrder(name,amount,dayOfMonth));
     }
 
     private void notifyDamagedItem() {
@@ -179,18 +261,14 @@ public class CommandLineUI {
         System.out.println(manager.notifyDamagedItem(itemId));
     }
 
-    private void loadData() {
-        System.out.print("Enter data to load: ");
-        String data = scanner.nextLine();
-        System.out.println(manager.loadData(data));
-    }
+
 
     private void addProduct() {
         System.out.print("Enter product name: ");
         String name = scanner.nextLine();
         double buyingCost = getDoubleInput("Enter buying cost: ");
         double sellingCost = getDoubleInput("Enter selling cost: ");
-        System.out.print("Enter categories (comma separated): ");
+        System.out.print("Enter categories separated by , : ");
         String[] categories = scanner.nextLine().split(",");
         System.out.print("Enter manufacturer: ");
         String manufacturer = scanner.nextLine();
@@ -207,27 +285,27 @@ public class CommandLineUI {
         System.out.print("Enter product name: ");
         String productName = scanner.nextLine();
         int itemID = getIntInput("Enter item ID: ");
-        System.out.print("Enter expiration date (YYYY-MM-DD): ");
+        System.out.print("Enter expiration date (DD/MM/YYYY): ");
         String expiredDate = scanner.nextLine();
         boolean isInWarehouse = getBooleanInput("Is the item in the warehouse? (true/false): ");
 
-        System.out.println(manager.addItem(productName, itemID, expiredDate, isInWarehouse));
+        System.out.println(manager.addItem(productName, itemID, expiredDate, isInWarehouse,false));
     }
 
     private void addDiscount() {
-        System.out.print("Enter start date (YYYY-MM-DD): ");
+        System.out.print("Enter start date (DD/MM/YYYY): ");
         String startDate = scanner.nextLine();
-        System.out.print("Enter end date (YYYY-MM-DD): ");
+        System.out.print("Enter end date (DD/MM/YYYY): ");
         String endDate = scanner.nextLine();
 
         List<String[]> categories = new ArrayList<>();
         while (true) {
-            System.out.print("Enter category (type 'e' to end): ");
+            System.out.print("Enter category separated by , (type 'e' to end): ");
             String input = scanner.nextLine();
             if (input.equalsIgnoreCase("e")) {
                 break;
             }
-            categories.add(input.split("\\|"));
+            categories.add(input.split(","));
         }
 
         double discountParameter = getDoubleInput("Enter discount parameter: ");
@@ -246,14 +324,14 @@ public class CommandLineUI {
     }
 
     private void getReportByCategory() {
-        List<String[]> categories = new ArrayList<>();
+        List<String> categories = new ArrayList<>();
         while (true) {
-            System.out.print("Enter category (type 'e' to end): ");
+            System.out.print("Enter a single category (type 'e' to end): ");
             String input = scanner.nextLine();
             if (input.equalsIgnoreCase("e")) {
                 break;
             }
-            categories.add(input.split("\\|"));
+            categories.add(input);
         }
         System.out.println(manager.getReportByCategory(categories));
     }
@@ -285,16 +363,13 @@ public class CommandLineUI {
     private void changeProductCategories() {
         System.out.print("Enter product name: ");
         String productName = scanner.nextLine();
-        System.out.print("Enter new categories (comma separated): ");
+        System.out.print("Enter new categories separated by , : ");
         String[] newCategories = scanner.nextLine().split(",");
 
         System.out.println(manager.changeProductCategories(productName, newCategories));
     }
 
-    private void getItemCost() {
-        int itemId = getIntInput("Enter item ID: ");
-        System.out.println(manager.getItemCost(itemId));
-    }
+
 
     private void getProductCost() {
         System.out.print("Enter product name: ");
@@ -307,10 +382,7 @@ public class CommandLineUI {
         System.out.println(manager.notifyItemBought(itemId));
     }
 
-    private void getItemSupplierCost() {
-        int itemId = getIntInput("Enter item ID: ");
-        System.out.println(manager.getItemSupplierCost(itemId));
-    }
+
 
     private void getProductSupplierCost() {
         System.out.print("Enter product name: ");
@@ -319,20 +391,18 @@ public class CommandLineUI {
     }
 
     private void removeDiscount() {
-        boolean isStore = getBooleanInput("Is the discount in-store? (true/false): ");
-        String discounts = manager.showDiscounts(isStore);
+        String discounts = manager.showDiscounts();
         if (discounts.length() == 0) {
             System.out.println("There are no discounts");
             return;
         }
         System.out.println(discounts);
         int discountNumber = getIntInput("Enter discount number: ");
-        System.out.println(manager.removeDiscount(isStore, discountNumber));
+        System.out.println(manager.removeDiscount(discountNumber));
     }
 
     private void showDiscounts() {
-        boolean isStore = getBooleanInput("Show in-store discounts? (true/false): ");
-        System.out.println(manager.showDiscounts(isStore));
+        System.out.println(manager.showDiscounts());
     }
 
     private void removeProduct() {
@@ -348,10 +418,7 @@ public class CommandLineUI {
         int itemId = getIntInput("Enter item ID: ");
         System.out.println(manager.moveItemToWarehouse(itemId));
     }
-    private void getItemLocation(){
-        int itemId = getIntInput("Enter item ID: ");
-        System.out.println(manager.getItemLocation(itemId));
-    }
+
     private void getProductLocation(){
         System.out.print("Enter product name: ");
         String productName = scanner.nextLine();
@@ -359,7 +426,22 @@ public class CommandLineUI {
         System.out.println(manager.getProductLocation(productName,inWareHouse));
     }
 
+    private void showOrders() {
+        System.out.println(manager.showOrders());
+    }
 
+    private void removeOrder() {
+        showOrders();
+        int index = getIntInput("Enter order index to remove: ");
+        System.out.println(manager.removeOrder(index));
+    }
+
+    private void updateOrder() {
+        showOrders();
+        int index = getIntInput("Enter order index to update: ");
+        int newAmount = getIntInput("Enter new amount: ");
+        System.out.println(manager.updateOrder(index, newAmount));
+    }
     private void exit() {
         System.out.println("Exiting the system. Goodbye!");
         scanner.close();

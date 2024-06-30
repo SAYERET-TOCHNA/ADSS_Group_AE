@@ -55,10 +55,9 @@ public class Category {
 
     @Override
     public String toString() {
-        return "Category{" +
-                firstCat + '\'' +
-                secondCat + '\'' +
-                thirdCat + '\'' +
-                '}';
+        return firstCat + '|' +
+                secondCat + '|' +
+                thirdCat + '|'
+                ;
     }
 }

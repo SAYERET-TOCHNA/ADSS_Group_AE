@@ -10,13 +10,13 @@ skinparam class {
 package "Domain Layer" {
     class Inventory {
         -Map<Integer,Item> allItems
-        -Map<String,List<Integer>> storeProducts
-        -Map<String,List<Integer>> warehouseProducts
+        -Map<String,List<Integer>> getStoreProducts()
+        -Map<String,List<Integer>> getWarehouseProducts()
         -Map<String, Product> products
         -Map<String,String> productsStoreLocation
         -Map<String,String> productsWarehouseLocation
-        -Map<String, List<Integer>> damagedItems
-        -Map<String, List<Integer>> expiredItems
+        -Map<String, List<Integer>> getDamagedItems()
+        -Map<String, List<Integer>> getExpiredItems()
         -List<Discount> discountsToClients
         -List<Discount> discountsFromSuppliers
     }

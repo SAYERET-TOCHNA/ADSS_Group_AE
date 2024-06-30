@@ -4,6 +4,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -60,6 +62,44 @@ public class Utils {
     public static boolean isTodaySunday() {
         LocalDate today = LocalDate.now();
         DayOfWeek dayOfWeek = today.getDayOfWeek();
-        return dayOfWeek == DayOfWeek.TUESDAY;
+        return dayOfWeek == DayOfWeek.SUNDAY;
+    }
+
+    public static String categoriesToString(Category[] categories){
+        if (categories.length ==0)
+            return "";
+        String output = categories[0].toString();
+        for (Category c : Arrays.copyOfRange(categories,1,categories.length)){
+            output += "#" + c.toString();
+        }
+        return  output;
+    }
+    public static String ListToStringJoined(List<String> names){
+        if (names.size() == 0)
+            return "";
+
+        // Make a copy of the list to avoid modifying the original list
+        List<String> namesCopy = new ArrayList<>(names);
+
+        String output = namesCopy.remove(0);
+        for (String s : namesCopy){
+            output += "#" + s;
+        }
+        return output;
+    }
+
+    public static List<String[]> ListOfStringArraysFromString(String input){
+        if (input.length() ==0)
+            return new ArrayList<>();
+        List<String[]> output = new ArrayList<>();
+        String [] categories = input.split("#");
+        for (String s : categories){
+            output.add(s.split("\\|"));
+        }
+        return  output;
+    }
+    public static String  DateToString(LocalDate date){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return date.format(formatter);
     }
 }

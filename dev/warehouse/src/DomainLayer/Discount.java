@@ -1,25 +1,56 @@
 package DomainLayer;
 
+import DataAccess.ControllerClasses.DiscountController;
+import DataAccess.DtoClasses.DiscountDto;
+import DataAccess.DtoClasses.Dto;
+import org.junit.platform.commons.util.StringUtils;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 
 public class Discount {
-    public Discount(LocalDate startDate, LocalDate endDate,Category[] categories, double discountParameter,
-                    List<String> discountedProducts) {
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.categories = categories;
-        this.discountParameter = discountParameter;
-        this.discountedProducts = discountedProducts;
-    }
-
+    private boolean isToClients;
     private LocalDate startDate;
     private LocalDate endDate;
     private Category[] categories;
     private double discountParameter;//between zero and 1
     private List<String> discountedProducts;
+    private int discountId;
+    private DiscountDto myDto;
+
+
+    public Discount(LocalDate startDate, LocalDate endDate, Category[] categories, double discountParameter,
+                    List<String> discountedProducts, boolean isToClients, int discountId, DiscountController discountController, boolean fromDB) {
+        this.isToClients = isToClients;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.categories = categories;
+        this.discountParameter = discountParameter;
+        this.discountedProducts = discountedProducts;
+        this.discountId = discountId;
+        this.myDto = new DiscountDto( isToClients,
+         startDate,
+         endDate,
+         Utils.categoriesToString(categories),
+         discountParameter,
+            Utils.ListToStringJoined(discountedProducts),
+         discountController,
+         fromDB,
+         discountId );
+        if (!fromDB)
+            this.myDto.persist();
+    }
+
+    public boolean isToClients() {
+        return isToClients;
+    }
+
+    public void setToClients(boolean toClients) {
+        isToClients = toClients;
+    }
+
 
     public boolean isDiscounted(Product product){
 
@@ -62,5 +93,9 @@ public class Discount {
         return "From:" +startDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))+
                 ", To:"+endDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))+", "+
                 categoriesString + ", parameter:" + discountParameter;
+    }
+
+    public void deleteYourself(){
+        myDto.deleteDiscount();
     }
 }

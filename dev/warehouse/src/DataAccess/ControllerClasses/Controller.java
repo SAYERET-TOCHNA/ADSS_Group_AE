@@ -18,7 +18,11 @@ public abstract class Controller {
 
     protected Controller() {
         try {
-            String path = new File(".").getCanonicalPath() + "\\Inventory.db";
+            String currentPath = new File(".").getCanonicalPath();
+
+            // Construct the path to the Inventory.db file in the 'dev' folder
+            String path = currentPath+ File.separator+ ".." + File.separator + "Inventory.db";
+            //String path = currentPath + File.separator + ".." + File.separator + "dev" + File.separator + "Inventory.db";
             this.connectionString = "jdbc:sqlite:" + path;
         } catch (IOException e) {
             log.log(Level.SEVERE, "Failed to get the canonical path for the database file.", e);

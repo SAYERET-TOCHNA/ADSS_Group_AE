@@ -92,15 +92,20 @@ public class InventoryFacade {
         String output = "\n----------------------------------\n";
         if (Utils.isTodaySunday()){
             output += "Today is Sunday so you can get your weekly sunday report\n" +
-                    "by pressing 5 and choosing the categories for this week";
+                    "by pressing 5, 1 and choosing the categories for this week";
         }
 
         loadSampleData();
         return output;
     }
 
-    public void deleteAllFromDB(){
-        itemController.deleteAll();
+    public String deleteAllFromDB(){
+        try{
+            itemController.deleteAll();
+            return "Delete Everything - success";
+        }catch (Exception e){
+            return "Delete Everything - failed " + e.getMessage();
+        }
     }
     public String addProduct(String name, double buyingCost, double sellingCost,
                              String[] categories, String manufacturer, int minimumAmountAllowed,
