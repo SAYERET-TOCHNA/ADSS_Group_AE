@@ -12,5 +12,6 @@ public enum Role {
     CLEANER,
     SECURITY,
     WAREHOUSE,
-    DRIVER
+    DRIVER,
+    WAREHOUSE_MANAGER
 }

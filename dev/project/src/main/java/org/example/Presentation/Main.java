@@ -102,6 +102,7 @@ public class Main {
         System.out.println("2. remove availability for shift");
         System.out.println("3. view my shifts"); //nodb
         System.out.println("4. change password");
+        System.out.println("5. WareHouse Options Menu");
         if(isAdmin){
             System.out.println("5. add a Shift to schduele");
             System.out.println("6. remove a Shift from schduele");
@@ -114,13 +115,14 @@ public class Main {
             System.out.println("13. remove/fire Employee from Branch");
             System.out.println("14. assign new Role to Employee"); //v
             System.out.println("15. set last date for submitting shifts"); 
-            System.out.println("16. log out"); //nodb
-            System.out.println("17. Exit system"); //nodb
+            System.out.println("16. WareHouse Options Menu");
+            System.out.println("17. log out"); //nodb
+            System.out.println("18. Exit system"); //nodb
     
         }
         else{
-            System.out.println("5. Log out");
-            System.out.println("6. Exit system");
+            System.out.println("6. Log out");
+            System.out.println("7. Exit system");
         }
     }
 
@@ -132,9 +134,9 @@ public class Main {
         while(actionId==-1){
             System.out.print("your choice: ");
             actionId = reader.readInt();
-            if(isAdmin && actionId >= 1 && actionId <= 17)
+            if(isAdmin && actionId >= 1 && actionId <= 18)
                 break;
-            else if(!isAdmin && actionId >= 1 && actionId <= 6)
+            else if(!isAdmin && actionId >= 1 && actionId <= 7)
                 break;
             else{
                 System.out.println("Invalid action choice.");
@@ -198,9 +200,12 @@ public class Main {
                     setLastDateForSubmitting();
                     break;
                 case 16:
-                    logOut();
+                    runWareHouseMenu();
                     break;
                 case 17:
+                    logOut();
+                    break;
+                case 18:
                     logOut();
                     systemOn=false;
                     System.out.println("Exiting System, Goodbye!");
@@ -226,9 +231,12 @@ public class Main {
                     changePassword();
                     break;
                 case 5:
-                    logOut();
+                    runWareHouseMenu();
                     break;
                 case 6:
+                    logOut();
+                    break;
+                case 7:
                     logOut();
                     systemOn=false;
                     System.out.println("Exiting System, Goodbye!");
@@ -650,6 +658,26 @@ public class Main {
         }
     }
 
+    private static void runWareHouseMenu() {
+        
+        int wareHouseQuali = SystemService.wareHouseQualification(loggedInUserId, loggedInBranchId);
+        
+        if(wareHouseQuali == 1)
+        {
+            // call small wareHouse Menu
+        }
+        else if(wareHouseQuali == 2)
+        {
+            // call big wareHouse Menu
+        }
+        else
+        {
+            System.out.println("You are not qualified for warehouse work.");
+            System.out.println("");
+            return;
+        }
+    }
+
     // -------------- Utility methods --------------
 
     public static Role chooseRole()
@@ -693,6 +721,8 @@ public class Main {
         }
         return employmentType;
     }
+
+    
 
     
 

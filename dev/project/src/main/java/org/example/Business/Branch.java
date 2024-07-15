@@ -293,6 +293,15 @@ public class Branch {
         return loggedInUserIds;
     }
 
+    public int wareHouseQualification(String eid) {
+        if(employeeController.isSuitableForRole(eid, Role.WAREHOUSE_MANAGER))
+            return 2;
+        else if(employeeController.isSuitableForRole(eid, Role.WAREHOUSE))
+            return 1;
+        else
+            return 0;
+    }
+
 
     
     

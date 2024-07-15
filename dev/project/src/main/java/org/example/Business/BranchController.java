@@ -226,6 +226,15 @@ public class BranchController {
         return branch.getShiftsForEmployee(eId);
     }
 
+    public int wareHouseQualification(String eid, int branchId) {
+        Branch branch = branches.get(branchId);
+        if (branch == null) {
+            branch = dao.getBranch(branchId);
+            branches.put(branchId, branch);
+        }
+        return branch.wareHouseQualification(eid);
+    }
+
 
     
 }
