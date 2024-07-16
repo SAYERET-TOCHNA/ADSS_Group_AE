@@ -102,7 +102,7 @@ public class SystemService {
     public static int wareHouseQualification(String eid, int branchId){
         return branchController.wareHouseQualification(eid, branchId);
     }
-
+    
 
     
 }

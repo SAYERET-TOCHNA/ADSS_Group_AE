@@ -7,6 +7,11 @@ import org.example.Business.Employee;
 import org.example.Business.Enums.EmploymentType;
 import org.example.Business.Enums.Role;
 import org.example.Business.Enums.ShiftTime;
+import org.example.DomainLayerInventory.CallBack;
+import org.example.DomainLayerInventory.InventoryFacade;
+import org.example.PresentationLayerInventory.CommandLineUI;
+import org.example.PresentationLayerInventory.InventoryCLI;
+import org.example.PresentationLayerInventory.reducedCLI;
 import org.example.Service.SystemService;
 import org.example.Utilities.SmartReader;
 import org.example.Utilities.Trio;
@@ -20,12 +25,20 @@ public class Main {
     private static int loggedInBranchId = -1;
     private static String loggedInUserId = "";
     private static boolean isAdmin = false;
-
     private static boolean systemOn=true;
+    private static InventoryFacade inventoryFacade;
 
     public static void main(String[] args) {
         
         SystemService.loadBranchIds();
+        CallBack callBack = new CallBack() {
+            @Override
+            public void call(String msg) {
+                System.out.println(msg);
+            }
+        };
+        inventoryFacade = new InventoryFacade(callBack);
+        System.out.println(inventoryFacade.init());
 
         System.out.println("Welcome to The SuperLi system!");
         while(systemOn){
@@ -92,7 +105,7 @@ public class Main {
                 System.out.println("");
                 isAdmin = false;
             }
-            break;    
+            break;
         }
     }
 
@@ -102,7 +115,6 @@ public class Main {
         System.out.println("2. remove availability for shift");
         System.out.println("3. view my shifts"); //nodb
         System.out.println("4. change password");
-        System.out.println("5. WareHouse Options Menu");
         if(isAdmin){
             System.out.println("5. add a Shift to schduele");
             System.out.println("6. remove a Shift from schduele");
@@ -114,13 +126,13 @@ public class Main {
             System.out.println("12. add/recruit new Employee to Branch");
             System.out.println("13. remove/fire Employee from Branch");
             System.out.println("14. assign new Role to Employee"); //v
-            System.out.println("15. set last date for submitting shifts"); 
-            System.out.println("16. WareHouse Options Menu");
+            System.out.println("15. set last date for submitting shifts");
+            System.out.println("\u001B[38;2;255;105;180m16. WareHouse Options Menu\u001B[0m");
             System.out.println("17. log out"); //nodb
             System.out.println("18. Exit system"); //nodb
-    
         }
         else{
+            System.out.println("\u001B[38;2;255;105;180m5. WareHouse Options Menu\u001B[0m");
             System.out.println("6. Log out");
             System.out.println("7. Exit system");
         }
@@ -209,6 +221,8 @@ public class Main {
                     logOut();
                     systemOn=false;
                     System.out.println("Exiting System, Goodbye!");
+                    System.out.println("here is a dinosaur holding Israel's flag: ");
+                    printDinosaur();
                     break;
                 default:
                     System.out.println("something weird happened... Act() returned the value "+actionId+" and isAdmin is true");
@@ -240,6 +254,8 @@ public class Main {
                     logOut();
                     systemOn=false;
                     System.out.println("Exiting System, Goodbye!");
+                    System.out.println("here is a dinosaur holding Israel's flag: ");
+                    printDinosaur();
                     break;
                 default:
                     System.out.println("something weird happened... Act() returned the value "+actionId+" and isAdmin is false");
@@ -659,25 +675,20 @@ public class Main {
     }
 
     private static void runWareHouseMenu() {
-        
         int wareHouseQuali = SystemService.wareHouseQualification(loggedInUserId, loggedInBranchId);
-        
-        if(wareHouseQuali == 1)
-        {
-            // call small wareHouse Menu
-        }
-        else if(wareHouseQuali == 2)
-        {
-            // call big wareHouse Menu
-        }
+        runWareHouseMenu(wareHouseQuali);
+    }
+
+    public static void runWareHouseMenu(int whq){
+        InventoryCLI cli = getEmployeeInventoryCLI(whq);
+       if (cli != null)
+           cli.runWareHouse();
         else
         {
             System.out.println("You are not qualified for warehouse work.");
             System.out.println("");
-            return;
         }
     }
-
     // -------------- Utility methods --------------
 
     public static Role chooseRole()
@@ -722,10 +733,44 @@ public class Main {
         return employmentType;
     }
 
-    
+    public static void printDinosaur() {
+        final String GREEN = "\u001B[38;2;0;255;0m";
+        final String BLUE = "\u001B[38;2;0;128;255m";
+        final String WHITE = "\u001B[38;2;255;255;255m";
+        final String RESET = "\u001B[0m";
 
-    
+        System.out.println(WHITE +"	/==================================\\"+ RESET);
+        System.out.println(WHITE +"    /					        	        \\"+ RESET);
+        System.out.println(BLUE  +"   |			     /\\				        \\"+ RESET);
+        System.out.println(BLUE +"    \\		  	    /  \\                    \\"+ RESET);
+        System.out.println(BLUE +"	\\		    ------------                     \\"+ RESET);
+        System.out.println(BLUE +"	|		    \\  /    \\  /                    \\"+ RESET);
+        System.out.println(BLUE +"   /			 \\/      \\/				        \\"+ RESET);
+        System.out.println(BLUE +"   |			 /\\      /\\				         \\"+ RESET);
+        System.out.println(BLUE +"    \\			/  \\    /  \\			          \\"+ RESET);
+        System.out.println(BLUE +"	\\		    ------------	                      \\"+ RESET);
+        System.out.println(BLUE +"     |		        \\  /                         \\"+ RESET);
+        System.out.println(BLUE +"    /	    		\\/					               \\"+ RESET);
+        System.out.println(WHITE +"   |										            \\"+ RESET);
+        System.out.println(WHITE +"   \\=================================================\\"+ RESET);
+        System.out.println(WHITE +"	Eines                     	                   \\"+ RESET);
+        System.out.println(WHITE +"      W  						       		    \\"+ RESET);
+        System.out.println(WHITE +"								    		     \\"+ RESET);
+        System.out.println(WHITE +"									    		 \\"+ RESET);
+        System.out.println(WHITE +"										    	  \\"+ RESET);
+        System.out.println(WHITE +"											       \\"+ RESET);
+        System.out.println(GREEN +"											        -\\-"+ RESET);
+        System.out.println(GREEN +"                      						    	  / _\\)" + RESET);
+        System.out.println(GREEN +"             							   _.----._/ /  \\" + RESET);
+        System.out.println(GREEN +"            							  /         /" + RESET);
+        System.out.println(GREEN +"          						      __/ (  |  (  |" + RESET);
+        System.out.println(GREEN +"         							   /__.-'|_|--|_|" + RESET);
+    }
 
 
-
+    public static InventoryCLI getEmployeeInventoryCLI(int idx){
+        if(idx==0) return null;
+        if(idx==1) return new reducedCLI(inventoryFacade);
+        return new CommandLineUI(inventoryFacade);
+    }
 }
