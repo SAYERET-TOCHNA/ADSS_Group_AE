@@ -1,0 +1,82 @@
+// table creation: 
+
+CREATE TABLE IF NOT EXISTS EMPLOYEES (
+    id text PRIMARY KEY,
+    name text NOT NULL,
+    password text NOT NULL,
+    employment_type integer NOT NULL,
+    salary integer NOT NULL,
+    bank_account_id text NOT NULL,
+    branch_id integer NOT NULL,
+    startDate text NOT NULL,
+    FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS EMPLOYEE_TO_ROLE (
+    employee_id text NOT NULL,
+    role integer NOT NULL,
+    FOREIGN KEY(employee_id) REFERENCES EMPLOYEES(id) ON DELETE CASCADE,
+    PRIMARY KEY (employee_id, role)
+);
+
+CREATE TABLE IF NOT EXISTS SHIFTS (
+    shift_date text NOT NULL,
+    shift_time integer NOT NULL,
+    branch_id integer NOT NULL,
+    FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE,
+    PRIMARY KEY (shift_date, shift_time, branch_id)
+);
+
+CREATE TABLE IF NOT EXISTS SHIFT_AVAILABILITY (
+    employee_id text NOT NULL,
+    shift_date text NOT NULL,
+    shift_time integer NOT NULL,
+    branch_id integer NOT NULL,
+    FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE,
+    FOREIGN KEY(employee_id) REFERENCES EMPLOYEES(id) ON DELETE CASCADE,
+    FOREIGN KEY(shift_date, shift_time, branch_id) REFERENCES SHIFTS(shift_date, shift_time, branch_id) ON DELETE CASCADE,
+    PRIMARY KEY (employee_id, shift_date, shift_time)
+);
+
+CREATE TABLE IF NOT EXISTS SHIFT_TO_EMPLOYEE (
+    employee_id text NOT NULL,
+    shift_date text NOT NULL,
+    shift_time integer NOT NULL,
+    branch_id integer NOT NULL,
+    role integer NOT NULL,
+    FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE,
+    FOREIGN KEY(employee_id) REFERENCES EMPLOYEES(id) ON DELETE CASCADE,
+    FOREIGN KEY(shift_date, shift_time, branch_id) REFERENCES SHIFTS(shift_date, shift_time, branch_id) ON DELETE CASCADE,
+    PRIMARY KEY (employee_id, shift_date, shift_time)
+);
+
+CREATE TABLE IF NOT EXISTS SHIFT_ROLE_TO_REQUIRED (
+    shift_date text NOT NULL,
+    shift_time integer NOT NULL,
+    branch_id integer NOT NULL,
+    role integer NOT NULL,
+    required integer NOT NULL,
+    FOREIGN KEY(branch_id) REFERENCES BRANCHES(id) ON DELETE CASCADE,
+    FOREIGN KEY(shift_date, shift_time, branch_id) REFERENCES SHIFTS(shift_date, shift_time, branch_id) ON DELETE CASCADE,
+    PRIMARY KEY (shift_date, shift_time, branch_id, role)
+);
+
+CREATE TABLE IF NOT EXISTS BRANCHES (
+    id integer PRIMARY KEY,
+    hr_manager_id text NOT NULL,
+    last_date_for_submitting_availability text NOT NULL,
+    FOREIGN KEY(hr_manager_id) REFERENCES EMPLOYEES(id)
+);
+
+
+// branch insertion:
+
+INSERT INTO BRANCHES (id, hr_manager_id, last_date_for_submitting_availability) VALUES (0, '0', '2024-06-23');
+INSERT INTO BRANCHES (id, hr_manager_id, last_date_for_submitting_availability) VALUES (1, '1', '2024-06-23');
+INSERT INTO BRANCHES (id, hr_manager_id, last_date_for_submitting_availability) VALUES (2, '2', '2024-06-23');
+INSERT INTO BRANCHES (id, hr_manager_id, last_date_for_submitting_availability) VALUES (3, '3', '2024-06-23');
+INSERT INTO BRANCHES (id, hr_manager_id, last_date_for_submitting_availability) VALUES (4, '4', '2024-06-23');
+INSERT INTO BRANCHES (id, hr_manager_id, last_date_for_submitting_availability) VALUES (5, '5', '2024-06-23');
+INSERT INTO BRANCHES (id, hr_manager_id, last_date_for_submitting_availability) VALUES (6, '6', '2024-06-23');
+INSERT INTO BRANCHES (id, hr_manager_id, last_date_for_submitting_availability) VALUES (7, '7', '2024-06-23');
+INSERT INTO BRANCHES (id, hr_manager_id, last_date_for_submitting_availability) VALUES (8, '8', '2024-06-23');
